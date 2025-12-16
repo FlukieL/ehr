@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Electric Heater Room</title>
+    <link rel="stylesheet" href="styles/main.css">
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <img src="assets/EHRLogo.png" alt="Electric Heater Room" class="logo">
+            <nav class="nav">
+                <button class="nav-button" data-section="live-streams" aria-label="Live Streams">Live Streams</button>
+                <button class="nav-button" data-section="audio-archives" aria-label="Audio Sets">Audio Sets</button>
+                <button class="nav-button" data-section="video-archives" aria-label="Video Sets">Video Sets</button>
+                <button class="nav-button" data-section="events" aria-label="Events">Events</button>
+            </nav>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <!-- Live Streams Section -->
+        <section id="live-streams" class="section active">
+            <div class="player-layout">
+                <div class="player-container">
+                    <!-- Stream Tabs -->
+                    <div class="stream-tabs">
+                        <button class="stream-tab active" data-stream="kick" id="kick-tab">Kick</button>
+                        <button class="stream-tab" data-stream="twitch" id="twitch-tab">Twitch</button>
+                    </div>
+                    
+                    <!-- Stream Players -->
+                    <div class="stream-players">
+                        <div class="stream-player active" id="kick-player">
+                            <div class="embed-container" id="kick-embed">
+                                <iframe 
+                                    src="https://player.kick.com/flukie" 
+                                    height="720" 
+                                    width="1280"
+                                    frameborder="0" 
+                                    scrolling="no" 
+                                    allowfullscreen="true"
+                                    title="Kick.com Live Stream">
+                                </iframe>
+                            </div>
+                        </div>
+                        <div class="stream-player" id="twitch-player">
+                            <div class="embed-container" id="twitch-embed"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Chat Container -->
+                <div class="chat-wrapper" id="chat-wrapper">
+                    <button class="chat-toggle" id="chat-toggle" aria-label="Toggle Chat">
+                        <span class="chat-toggle-icon">▶</span>
+                    </button>
+                    <div class="chat-container" id="chat-container">
+                        <div class="chat-embed-container">
+                            <iframe 
+                                src="https://kick.com/popout/flukie/chat"
+                                class="chat-embed chat-kick active"
+                                id="kick-chat"
+                                frameborder="0"
+                                allow="clipboard-read; clipboard-write"
+                                title="Kick Chat">
+                            </iframe>
+                            <iframe 
+                                src=""
+                                class="chat-embed chat-twitch"
+                                id="twitch-chat"
+                                frameborder="0"
+                                allow="clipboard-read; clipboard-write"
+                                title="Twitch Chat">
+                            </iframe>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Audio Sets Section -->
+        <section id="audio-archives" class="section">
+            <h1 class="section-title">Audio Sets</h1>
+            <div class="archives-container" id="audio-archives-container">
+                <!-- Audio set items will be dynamically loaded here -->
+            </div>
+        </section>
+
+        <!-- Video Sets Section -->
+        <section id="video-archives" class="section">
+            <h1 class="section-title">Video Sets</h1>
+            <div class="video-player-layout" id="video-player-layout">
+                <div class="video-main-player" id="video-main-player">
+                    <div class="video-player-container" id="video-player-container">
+                        <!-- Main video player will be loaded here -->
+                        <div class="video-placeholder">
+                            <p>Select a video from the playlist to start watching</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="video-playlist" id="video-playlist">
+                    <!-- Video playlist items will be dynamically loaded here -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Events Section -->
+        <section id="events" class="section">
+            <h1 class="section-title">Events</h1>
+            <div class="calendar-container" id="calendar-container">
+                <!-- Calendar will be dynamically loaded here -->
+            </div>
+        </section>
+    </main>
+
+    <!-- External SDK Scripts -->
+    <script src="https://embed.twitch.tv/embed/v1.js"></script>
+    <script src="https://widget.mixcloud.com/media/js/widgetApi.js"></script>
+
+    <!-- Application Scripts -->
+    <script src="scripts/config.js" type="module"></script>
+    <script src="scripts/navigation.js" type="module"></script>
+    <script src="scripts/embeds.js" type="module"></script>
+    <script src="scripts/stream-controls.js" type="module"></script>
+    <script src="scripts/main.js" type="module"></script>
+</body>
+</html>
+
