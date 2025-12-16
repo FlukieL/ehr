@@ -480,6 +480,7 @@ body {
     max-width: 1400px;
     margin: 0 auto;
     animation: fadeInUp 0.6s var(--transition-easing);
+    scroll-margin-top: 120px;
 }
 
 .section.active {
@@ -934,21 +935,24 @@ body {
     }
 
     .main-content {
-        margin-top: calc(140px + env(safe-area-inset-top, 0px));
+        margin-top: calc(160px + env(safe-area-inset-top, 0px));
     }
 
     .section {
         padding: 2rem 1rem;
+        padding-top: 2rem;
+        scroll-margin-top: calc(160px + env(safe-area-inset-top, 0px));
     }
 
     #live-streams {
-        height: calc(100dvh - 140px - env(safe-area-inset-top, 0px));
-        min-height: calc(100dvh - 140px - env(safe-area-inset-top, 0px));
-        max-height: calc(100dvh - 140px - env(safe-area-inset-top, 0px));
+        height: calc(100dvh - 160px - env(safe-area-inset-top, 0px));
+        min-height: calc(100dvh - 160px - env(safe-area-inset-top, 0px));
+        max-height: calc(100dvh - 160px - env(safe-area-inset-top, 0px));
         padding: 0;
         overflow: hidden;
         position: relative;
         touch-action: pan-y pinch-zoom;
+        scroll-margin-top: calc(160px + env(safe-area-inset-top, 0px));
     }
 
     .section-title {
