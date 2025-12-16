@@ -51,8 +51,11 @@ export function initStreamControls() {
             toggleChatWrapper();
         });
         
-        // Initialise chat wrapper as expanded by default
-        // Chat starts visible alongside the player
+        // Initialise chat wrapper as collapsed by default on mobile devices
+        if (isMobileDevice()) {
+            chatWrapper.classList.add('collapsed');
+        }
+        // On desktop, chat starts visible alongside the player
     }
 }
 
@@ -195,4 +198,30 @@ export function getActiveStream() {
 export function isChatWrapperExpanded() {
     const chatWrapper = document.getElementById('chat-wrapper');
     return chatWrapper ? !chatWrapper.classList.contains('collapsed') : false;
+}
+
+/**
+ * Detects if the current device is a mobile device
+ * 
+ * Checks both window width and user agent to determine if device is mobile
+ * 
+ * @returns {boolean} True if mobile device, false otherwise
+ * 
+ * @example
+ * if (isMobileDevice()) {
+ *     // Mobile-specific code
+ * }
+ */
+function isMobileDevice() {
+    // Check window width (matches CSS media query breakpoint)
+    const isMobileWidth = window.innerWidth <= 768;
+    
+    // Check user agent for mobile devices
+    const isMobileUserAgent = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    
+    // Also check for touch capability
+    const hasTouchScreen = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+    
+    // Consider it mobile if width is small OR (user agent suggests mobile AND has touch)
+    return isMobileWidth || (isMobileUserAgent && hasTouchScreen);
 }
