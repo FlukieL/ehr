@@ -390,12 +390,17 @@ export function loadVideoArchives(videoArchives) {
         const playlistItem = document.createElement('div');
         playlistItem.className = 'video-playlist-item';
         playlistItem.dataset.videoIndex = index;
+        playlistItem.dataset.videoKey = item.key || '';
+        
+        // Create content wrapper
+        const contentWrapper = document.createElement('div');
+        contentWrapper.className = 'video-playlist-item-content';
         
         // Add title
         const titleDiv = document.createElement('div');
         titleDiv.className = 'video-playlist-item-title';
         titleDiv.textContent = item.title || 'Untitled';
-        playlistItem.appendChild(titleDiv);
+        contentWrapper.appendChild(titleDiv);
         
         // Add date if available
         if (item.created_time) {
@@ -409,19 +414,44 @@ export function loadVideoArchives(videoArchives) {
                 year: 'numeric'
             });
             dateDiv.textContent = formattedDate;
-            playlistItem.appendChild(dateDiv);
+            contentWrapper.appendChild(dateDiv);
         }
         
-        // Add click handler to load video
-        playlistItem.addEventListener('click', () => {
+        playlistItem.appendChild(contentWrapper);
+        
+        // Add share button
+        const shareButton = document.createElement('button');
+        shareButton.className = 'video-playlist-item-share';
+        shareButton.setAttribute('aria-label', `Share ${item.title || 'video'}`);
+        shareButton.innerHTML = '🔗';
+        shareButton.addEventListener('click', (e) => {
+            e.stopPropagation(); // Prevent triggering the playlist item click
+            shareVideo(item, index);
+        });
+        playlistItem.appendChild(shareButton);
+        
+        // Add click handler to load video (on content wrapper, not share button)
+        contentWrapper.addEventListener('click', () => {
             loadVideoInPlayer(item, index, sortedArchives, playlistContainer);
         });
         
         playlistContainer.appendChild(playlistItem);
     });
 
-    // Load first video by default
-    if (sortedArchives.length > 0) {
+    // Check URL for video parameter and load that video, otherwise load first
+    const urlParams = new URLSearchParams(window.location.search);
+    const videoKey = urlParams.get('video');
+    
+    if (videoKey && sortedArchives.length > 0) {
+        const videoIndex = sortedArchives.findIndex(v => v.key === videoKey);
+        if (videoIndex !== -1) {
+            loadVideoInPlayer(sortedArchives[videoIndex], videoIndex, sortedArchives, playlistContainer);
+        } else {
+            // If video key not found, load first video
+            loadVideoInPlayer(sortedArchives[0], 0, sortedArchives, playlistContainer);
+        }
+    } else if (sortedArchives.length > 0) {
+        // Load first video by default
         loadVideoInPlayer(sortedArchives[0], 0, sortedArchives, playlistContainer);
     }
 }
@@ -452,6 +482,13 @@ function loadVideoInPlayer(videoItem, index, allVideos, playlistContainer) {
         }
     });
 
+    // Update URL with video key
+    if (videoItem.key) {
+        const url = new URL(window.location.href);
+        url.searchParams.set('video', videoItem.key);
+        window.history.replaceState({}, '', url);
+    }
+
     // Clear existing player
     mainPlayerContainer.innerHTML = '';
 
@@ -476,6 +513,104 @@ function loadVideoInPlayer(videoItem, index, allVideos, playlistContainer) {
         console.warn(`Unknown video platform: ${videoItem.platform}`);
         mainPlayerContainer.innerHTML = '<div class="video-placeholder">Unsupported video platform</div>';
     }
+}
+
+/**
+ * Shares a video by copying the URL to clipboard or using Web Share API
+ * 
+ * @param {Object} videoItem - The video archive item to share
+ * @param {number} index - The index of the video in the sorted array
+ */
+function shareVideo(videoItem, index) {
+    const url = new URL(window.location.href);
+    url.searchParams.set('video', videoItem.key || '');
+    
+    const shareUrl = url.toString();
+    const shareTitle = videoItem.title || 'Video';
+    const shareText = `Check out ${shareTitle} on Electric Heater Room`;
+
+    // Try Web Share API first (mobile-friendly)
+    if (navigator.share) {
+        navigator.share({
+            title: shareTitle,
+            text: shareText,
+            url: shareUrl
+        }).catch((error) => {
+            // User cancelled or error occurred, fall back to clipboard
+            if (error.name !== 'AbortError') {
+                copyToClipboard(shareUrl);
+            }
+        });
+    } else {
+        // Fall back to clipboard
+        copyToClipboard(shareUrl);
+    }
+}
+
+/**
+ * Copies text to clipboard and shows a brief confirmation
+ * 
+ * @param {string} text - The text to copy
+ */
+function copyToClipboard(text) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(() => {
+            showShareConfirmation();
+        }).catch(() => {
+            // Fallback for older browsers
+            fallbackCopyToClipboard(text);
+        });
+    } else {
+        fallbackCopyToClipboard(text);
+    }
+}
+
+/**
+ * Fallback method to copy text to clipboard for older browsers
+ * 
+ * @param {string} text - The text to copy
+ */
+function fallbackCopyToClipboard(text) {
+    const textArea = document.createElement('textarea');
+    textArea.value = text;
+    textArea.style.position = 'fixed';
+    textArea.style.left = '-999999px';
+    textArea.style.top = '-999999px';
+    document.body.appendChild(textArea);
+    textArea.focus();
+    textArea.select();
+    
+    try {
+        document.execCommand('copy');
+        showShareConfirmation();
+    } catch (err) {
+        console.error('Failed to copy text:', err);
+        alert('Failed to copy link. Please copy manually:\n' + text);
+    }
+    
+    document.body.removeChild(textArea);
+}
+
+/**
+ * Shows a brief confirmation message that the link was copied
+ */
+function showShareConfirmation() {
+    // Create or update confirmation message
+    let confirmation = document.getElementById('share-confirmation');
+    if (!confirmation) {
+        confirmation = document.createElement('div');
+        confirmation.id = 'share-confirmation';
+        confirmation.className = 'share-confirmation';
+        confirmation.textContent = 'Link copied to clipboard!';
+        document.body.appendChild(confirmation);
+    }
+    
+    confirmation.classList.add('show');
+    
+    // Hide after 2 seconds
+    setTimeout(() => {
+        confirmation.classList.remove('show');
+    }, 2000);
 }
 
 /**
