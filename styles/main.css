@@ -995,11 +995,14 @@ body {
         padding-bottom: 1rem;
         padding-left: env(safe-area-inset-left, 0px);
         padding-right: env(safe-area-inset-right, 0px);
+        transition: padding-bottom var(--transition-speed) var(--transition-easing);
     }
 
     .header-content {
         flex-direction: column;
         padding: 0 1rem;
+        gap: 20px;
+        transition: gap var(--transition-speed) var(--transition-easing);
     }
 
     .logo {
@@ -1011,7 +1014,28 @@ body {
         grid-template-columns: repeat(3, 1fr);
         gap: 0.75rem;
         width: 100%;
-        margin-top: 0.75rem;
+        margin-top: 0;
+        max-height: 500px;
+        opacity: 1;
+        overflow: hidden;
+        transition: max-height var(--transition-speed) var(--transition-easing),
+                    opacity var(--transition-speed) var(--transition-easing),
+                    margin-top var(--transition-speed) var(--transition-easing);
+    }
+
+    .header.collapsed .nav {
+        max-height: 0;
+        opacity: 0;
+        margin-top: 0;
+        overflow: hidden;
+    }
+
+    .header.collapsed .header-content {
+        gap: 0;
+    }
+
+    .header.collapsed {
+        padding-bottom: 0.5rem;
     }
 
     .nav-button {
@@ -1043,12 +1067,22 @@ body {
 
     .main-content {
         margin-top: calc(200px + env(safe-area-inset-top, 0px));
+        transition: margin-top var(--transition-speed) var(--transition-easing);
+    }
+
+    .header.collapsed ~ .main-content {
+        margin-top: calc(80px + env(safe-area-inset-top, 0px));
     }
 
     .section {
         padding: 2rem 1rem;
         padding-top: 2rem;
         scroll-margin-top: calc(200px + env(safe-area-inset-top, 0px));
+        transition: scroll-margin-top var(--transition-speed) var(--transition-easing);
+    }
+
+    .header.collapsed ~ .main-content .section {
+        scroll-margin-top: calc(80px + env(safe-area-inset-top, 0px));
     }
 
     #live-streams {
@@ -1061,6 +1095,11 @@ body {
     
     #live-streams.active ~ .player-layout {
         height: calc(100dvh - 200px - env(safe-area-inset-top, 0px));
+        transition: height var(--transition-speed) var(--transition-easing);
+    }
+
+    .header.collapsed ~ .main-content #live-streams.active ~ .player-layout {
+        height: calc(100dvh - 80px - env(safe-area-inset-top, 0px));
     }
 
     .section-title {
@@ -1076,6 +1115,11 @@ body {
         position: relative;
         min-height: 0;
         display: none;
+        transition: height var(--transition-speed) var(--transition-easing);
+    }
+
+    .header.collapsed ~ .main-content .player-layout {
+        height: calc(100dvh - 80px - env(safe-area-inset-top, 0px));
     }
     
     #live-streams.active ~ .player-layout {

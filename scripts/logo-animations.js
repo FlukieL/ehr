@@ -2,6 +2,7 @@
  * Logo Animations Module
  * 
  * Handles random logo animations on page load, at intervals, and on click.
+ * Also handles header collapse/expand on mobile devices.
  * 
  * @module logo-animations
  */
@@ -108,10 +109,15 @@ export function initLogoAnimations() {
         playRandomAnimation();
     }, 69000); // 69 seconds in milliseconds
 
-    // Play animation on logo click
+    // Play animation on logo click and toggle header on mobile
     logo.addEventListener('click', (e) => {
         e.preventDefault();
         playRandomAnimation();
+        
+        // Toggle header collapse/expand on mobile devices
+        if (isMobileDevice()) {
+            toggleHeaderCollapse();
+        }
     });
 
     console.log('Logo animations initialised');
@@ -128,5 +134,30 @@ export function stopLogoAnimations() {
         clearInterval(animationInterval);
         animationInterval = null;
     }
+}
+
+/**
+ * Checks if the current device is a mobile device
+ * 
+ * @returns {boolean} True if mobile device, false otherwise
+ * @private
+ */
+function isMobileDevice() {
+    return window.innerWidth <= 768;
+}
+
+/**
+ * Toggles the header collapse/expand state on mobile
+ * 
+ * @private
+ */
+function toggleHeaderCollapse() {
+    const header = document.querySelector('.header');
+    
+    if (!header) {
+        return;
+    }
+
+    header.classList.toggle('collapsed');
 }
 
