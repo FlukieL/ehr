@@ -31,66 +31,6 @@
     </header>
 
     <main class="main-content">
-        <!-- Live Streams Section -->
-        <section id="live-streams" class="section active">
-            <div class="player-layout">
-                <div class="player-container">
-                    <!-- Stream Tabs -->
-                    <div class="stream-tabs">
-                        <button class="stream-tab active" data-stream="kick" id="kick-tab">Kick</button>
-                        <button class="stream-tab" data-stream="twitch" id="twitch-tab">Twitch</button>
-                    </div>
-                    
-                    <!-- Stream Players -->
-                    <div class="stream-players">
-                        <div class="stream-player active" id="kick-player">
-                            <div class="embed-container" id="kick-embed">
-                                <iframe 
-                                    src="https://player.kick.com/flukie" 
-                                    height="720" 
-                                    width="1280"
-                                    frameborder="0" 
-                                    scrolling="no" 
-                                    allowfullscreen="true"
-                                    title="Kick.com Live Stream">
-                                </iframe>
-                            </div>
-                        </div>
-                        <div class="stream-player" id="twitch-player">
-                            <div class="embed-container" id="twitch-embed"></div>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Chat Container -->
-                <div class="chat-wrapper" id="chat-wrapper">
-                    <button class="chat-toggle" id="chat-toggle" aria-label="Toggle Chat">
-                        <span class="chat-toggle-icon">▶</span>
-                    </button>
-                    <div class="chat-container" id="chat-container">
-                        <div class="chat-embed-container">
-                            <iframe 
-                                src="https://kick.com/popout/flukie/chat"
-                                class="chat-embed chat-kick active"
-                                id="kick-chat"
-                                frameborder="0"
-                                allow="clipboard-read; clipboard-write"
-                                title="Kick Chat">
-                            </iframe>
-                            <iframe 
-                                src=""
-                                class="chat-embed chat-twitch"
-                                id="twitch-chat"
-                                frameborder="0"
-                                allow="clipboard-read; clipboard-write"
-                                title="Twitch Chat">
-                            </iframe>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
         <!-- Audio Sets Section -->
         <section id="audio-archives" class="section">
             <h1 class="section-title">Audio Sets</h1>
@@ -124,6 +64,67 @@
                 <!-- Calendar will be dynamically loaded here -->
             </div>
         </section>
+
+        <!-- Live Streams Section -->
+        <section id="live-streams" class="section active">
+        </section>
+
+        <div class="player-layout">
+            <div class="player-container">
+                <!-- Stream Tabs -->
+                <div class="stream-tabs">
+                    <button class="stream-tab active" data-stream="kick" id="kick-tab">Kick</button>
+                    <button class="stream-tab" data-stream="twitch" id="twitch-tab">Twitch</button>
+                </div>
+                
+                <!-- Stream Players -->
+                <div class="stream-players">
+                    <div class="stream-player active" id="kick-player">
+                        <div class="embed-container" id="kick-embed">
+                            <iframe 
+                                src="https://player.kick.com/flukie" 
+                                height="720" 
+                                width="1280"
+                                frameborder="0" 
+                                scrolling="no" 
+                                allowfullscreen="true"
+                                title="Kick.com Live Stream">
+                            </iframe>
+                        </div>
+                    </div>
+                    <div class="stream-player" id="twitch-player">
+                        <div class="embed-container" id="twitch-embed"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Chat Container -->
+            <div class="chat-wrapper" id="chat-wrapper">
+                <button class="chat-toggle" id="chat-toggle" aria-label="Toggle Chat">
+                    <span class="chat-toggle-icon">▶</span>
+                </button>
+                <div class="chat-container" id="chat-container">
+                    <div class="chat-embed-container">
+                        <iframe 
+                            src="https://kick.com/popout/flukie/chat"
+                            class="chat-embed chat-kick active"
+                            id="kick-chat"
+                            frameborder="0"
+                            allow="clipboard-read; clipboard-write"
+                            title="Kick Chat">
+                        </iframe>
+                        <iframe 
+                            src=""
+                            class="chat-embed chat-twitch"
+                            id="twitch-chat"
+                            frameborder="0"
+                            allow="clipboard-read; clipboard-write"
+                            title="Twitch Chat">
+                        </iframe>
+                    </div>
+                </div>
+            </div>
+        </div>
     </main>
 
     <!-- External SDK Scripts -->

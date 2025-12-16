@@ -395,6 +395,7 @@ body {
     letter-spacing: 0.05em;
     position: relative;
     overflow: hidden;
+    vertical-align: middle;
 }
 
 .nav-button::before {
@@ -440,6 +441,8 @@ body {
     position: relative;
     overflow: hidden;
     display: inline-block;
+    text-align: center;
+    vertical-align: middle;
 }
 
 .instagram-link::before {
