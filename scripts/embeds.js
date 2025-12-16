@@ -176,6 +176,8 @@ export function createIframeEmbed(embedUrl, containerId, options = {}) {
     iframe.style.width = '100%';
     iframe.style.height = '100%';
     iframe.style.border = 'none';
+    // Store original src for later restoration
+    iframe.setAttribute('data-original-src', embedUrl);
 
     container.appendChild(iframe);
     console.log(`Iframe embed created in "${containerId}"`);
@@ -513,9 +515,13 @@ export function unloadSectionMedia(sectionId) {
         // Pause Twitch embed
         pauseTwitchEmbed();
         
-        // Unload Kick iframe by removing src
+        // Unload Kick iframe by removing src (store original src first)
         const kickIframe = section.querySelector('#kick-embed iframe');
         if (kickIframe && kickIframe.src) {
+            // Store original src before clearing (only if not already stored)
+            if (!kickIframe.getAttribute('data-original-src')) {
+                kickIframe.setAttribute('data-original-src', kickIframe.src);
+            }
             kickIframe.src = '';
         }
         
@@ -524,6 +530,10 @@ export function unloadSectionMedia(sectionId) {
         if (twitchContainer) {
             const twitchIframe = twitchContainer.querySelector('iframe');
             if (twitchIframe && twitchIframe.src) {
+                // Store original src before clearing (only if not already stored)
+                if (!twitchIframe.getAttribute('data-original-src')) {
+                    twitchIframe.setAttribute('data-original-src', twitchIframe.src);
+                }
                 twitchIframe.src = '';
             }
         }
@@ -590,6 +600,70 @@ export function unloadSectionMedia(sectionId) {
 export function reloadSectionMedia(sectionId) {
     const section = document.getElementById(sectionId);
     if (!section) {
+        return;
+    }
+
+    // Handle live streams section
+    if (sectionId === 'live-streams') {
+        // Small delay to ensure section is visible before reloading streams
+        setTimeout(() => {
+            // Dynamically import getActiveStream to avoid circular dependency
+            import('./stream-controls.js').then(({ getActiveStream }) => {
+                const activeStream = getActiveStream();
+                
+                // Reload the currently active stream
+                if (activeStream === 'kick') {
+                    const kickIframe = section.querySelector('#kick-embed iframe');
+                    if (kickIframe) {
+                        const originalSrc = kickIframe.getAttribute('data-original-src');
+                        const currentSrc = kickIframe.src;
+                        
+                        // If we have a stored original src, use it
+                        if (originalSrc) {
+                            if (!currentSrc || currentSrc === '' || currentSrc === 'about:blank') {
+                                // Force reload by clearing and resetting src
+                                kickIframe.src = '';
+                                setTimeout(() => {
+                                    kickIframe.src = originalSrc;
+                                }, 50);
+                            }
+                        } else if (!currentSrc || currentSrc === '' || currentSrc === 'about:blank') {
+                            // Fallback: reload with default channel
+                            const kickChannel = 'flukie';
+                            const newSrc = `https://player.kick.com/${kickChannel}`;
+                            kickIframe.setAttribute('data-original-src', newSrc);
+                            kickIframe.src = newSrc;
+                        }
+                    }
+                } else if (activeStream === 'twitch') {
+                    const twitchContainer = document.getElementById('twitch-embed');
+                    if (twitchContainer) {
+                        const twitchIframe = twitchContainer.querySelector('iframe');
+                        // If container is empty or iframe doesn't exist or is blank, reinitialise
+                        if (!twitchIframe || !twitchIframe.src || twitchIframe.src === '' || twitchIframe.src === 'about:blank') {
+                            // Reinitialise Twitch embed
+                            const twitchChannel = 'flukie';
+                            initTwitchEmbed(twitchChannel, 'twitch-embed', {
+                                width: 1280,
+                                height: 720
+                            });
+                        } else {
+                            // Iframe exists and has src, restore it if needed
+                            const originalSrc = twitchIframe.getAttribute('data-original-src');
+                            if (originalSrc && twitchIframe.src !== originalSrc) {
+                                // Force reload by clearing and resetting src
+                                twitchIframe.src = '';
+                                setTimeout(() => {
+                                    twitchIframe.src = originalSrc;
+                                }, 50);
+                            }
+                        }
+                    }
+                }
+            }).catch(error => {
+                console.error('Error reloading live streams:', error);
+            });
+        }, 100);
         return;
     }
 
