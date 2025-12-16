@@ -611,53 +611,61 @@ export function reloadSectionMedia(sectionId) {
             import('./stream-controls.js').then(({ getActiveStream }) => {
                 const activeStream = getActiveStream();
                 
-                // Reload the currently active stream
+                // Reload the currently active stream - always force a refresh
                 if (activeStream === 'kick') {
-                    const kickIframe = section.querySelector('#kick-embed iframe');
-                    if (kickIframe) {
-                        const originalSrc = kickIframe.getAttribute('data-original-src');
-                        const currentSrc = kickIframe.src;
+                    const kickContainer = document.getElementById('kick-embed');
+                    if (kickContainer) {
+                        const kickIframe = kickContainer.querySelector('iframe');
+                        let originalSrc = null;
                         
-                        // If we have a stored original src, use it
-                        if (originalSrc) {
-                            if (!currentSrc || currentSrc === '' || currentSrc === 'about:blank') {
-                                // Force reload by clearing and resetting src
-                                kickIframe.src = '';
-                                setTimeout(() => {
-                                    kickIframe.src = originalSrc;
-                                }, 50);
+                        // Get original src from iframe or use default
+                        if (kickIframe) {
+                            originalSrc = kickIframe.getAttribute('data-original-src');
+                            if (!originalSrc && kickIframe.src && kickIframe.src !== '' && kickIframe.src !== 'about:blank' && kickIframe.src.includes('kick.com')) {
+                                originalSrc = kickIframe.src;
                             }
-                        } else if (!currentSrc || currentSrc === '' || currentSrc === 'about:blank') {
-                            // Fallback: reload with default channel
-                            const kickChannel = 'flukie';
-                            const newSrc = `https://player.kick.com/${kickChannel}`;
-                            kickIframe.setAttribute('data-original-src', newSrc);
-                            kickIframe.src = newSrc;
                         }
+                        
+                        // If no original src found, use default
+                        if (!originalSrc) {
+                            const kickChannel = 'flukie';
+                            originalSrc = `https://player.kick.com/${kickChannel}`;
+                        }
+                        
+                        // Remove existing iframe and recreate to force refresh
+                        kickContainer.innerHTML = '';
+                        
+                        // Create new iframe with fresh src
+                        const newIframe = document.createElement('iframe');
+                        newIframe.src = originalSrc;
+                        newIframe.width = '1280';
+                        newIframe.height = '720';
+                        newIframe.frameBorder = '0';
+                        newIframe.scrolling = 'no';
+                        newIframe.allowFullscreen = true;
+                        newIframe.title = 'Kick.com Live Stream';
+                        newIframe.style.width = '100%';
+                        newIframe.style.height = '100%';
+                        newIframe.style.border = 'none';
+                        newIframe.setAttribute('data-original-src', originalSrc);
+                        
+                        kickContainer.appendChild(newIframe);
                     }
                 } else if (activeStream === 'twitch') {
                     const twitchContainer = document.getElementById('twitch-embed');
                     if (twitchContainer) {
-                        const twitchIframe = twitchContainer.querySelector('iframe');
-                        // If container is empty or iframe doesn't exist or is blank, reinitialise
-                        if (!twitchIframe || !twitchIframe.src || twitchIframe.src === '' || twitchIframe.src === 'about:blank') {
-                            // Reinitialise Twitch embed
-                            const twitchChannel = 'flukie';
-                            initTwitchEmbed(twitchChannel, 'twitch-embed', {
-                                width: 1280,
-                                height: 720
-                            });
-                        } else {
-                            // Iframe exists and has src, restore it if needed
-                            const originalSrc = twitchIframe.getAttribute('data-original-src');
-                            if (originalSrc && twitchIframe.src !== originalSrc) {
-                                // Force reload by clearing and resetting src
-                                twitchIframe.src = '';
-                                setTimeout(() => {
-                                    twitchIframe.src = originalSrc;
-                                }, 50);
-                            }
-                        }
+                        // Always reinitialise Twitch embed to ensure fresh connection
+                        // Clear the container first
+                        twitchContainer.innerHTML = '';
+                        // Reset the twitchEmbed reference
+                        twitchEmbed = null;
+                        
+                        // Reinitialise Twitch embed
+                        const twitchChannel = 'flukie';
+                        initTwitchEmbed(twitchChannel, 'twitch-embed', {
+                            width: 1280,
+                            height: 720
+                        });
                     }
                 }
             }).catch(error => {

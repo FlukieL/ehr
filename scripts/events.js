@@ -91,12 +91,20 @@ function generateGoogleCalendarUrl(event) {
     const start = formatGoogleDate(startDate);
     const end = formatGoogleDate(endDate);
     
+    // Build event details with website link
+    const websiteUrl = 'https://ehr.lukeharper.co.uk';
+    let details = event.description || '';
+    if (details) {
+        details += '\n\n';
+    }
+    details += websiteUrl;
+    
     // Build Google Calendar URL
     const params = new URLSearchParams({
         action: 'TEMPLATE',
         text: event.title || '',
         dates: `${start}/${end}`,
-        details: event.description || '',
+        details: details,
         location: event.location || ''
     });
     
