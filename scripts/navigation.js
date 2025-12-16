@@ -124,6 +124,13 @@ export function switchSection(sectionId, animate = true) {
     if (activeSection) {
         unloadSectionMedia(activeSection);
         
+        // Remove video URL parameter if leaving video-archives section
+        if (activeSection === 'video-archives') {
+            const url = new URL(window.location.href);
+            url.searchParams.delete('video');
+            window.history.replaceState({}, '', url);
+        }
+        
         const currentSection = document.getElementById(activeSection);
         if (currentSection && animate) {
             currentSection.classList.add('fade-out');

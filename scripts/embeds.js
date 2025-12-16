@@ -482,8 +482,9 @@ function loadVideoInPlayer(videoItem, index, allVideos, playlistContainer) {
         }
     });
 
-    // Update URL with video key
-    if (videoItem.key) {
+    // Update URL with video key only if video-archives section is active
+    const videoArchivesSection = document.getElementById('video-archives');
+    if (videoItem.key && videoArchivesSection && videoArchivesSection.classList.contains('active')) {
         const url = new URL(window.location.href);
         url.searchParams.set('video', videoItem.key);
         window.history.replaceState({}, '', url);

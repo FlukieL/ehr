@@ -557,6 +557,7 @@ body {
     width: 100%;
     box-sizing: border-box;
     min-height: 48px;
+    align-items: center;
 }
 
 .stream-tab {
@@ -583,6 +584,34 @@ body {
     background: var(--accent-orange);
     color: var(--bg-primary);
     box-shadow: 0 0 12px rgba(255, 107, 53, 0.5);
+}
+
+.stream-tab-share {
+    background: rgba(255, 107, 53, 0.2);
+    border: 1px solid rgba(255, 107, 53, 0.5);
+    border-radius: 4px;
+    color: var(--accent-orange);
+    font-size: 1.2rem;
+    padding: 0.5rem 0.75rem;
+    cursor: pointer;
+    transition: all var(--transition-speed) var(--transition-easing);
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 40px;
+    height: 40px;
+    flex-shrink: 0;
+}
+
+.stream-tab-share:hover {
+    background: rgba(255, 107, 53, 0.4);
+    border-color: var(--accent-orange);
+    transform: scale(1.1);
+}
+
+.stream-tab-share:active {
+    transform: scale(0.95);
 }
 
 /* Stream Players */
@@ -1195,6 +1224,13 @@ body {
         font-size: 1rem;
         font-weight: 700;
         min-height: 44px;
+    }
+
+    .stream-tab-share {
+        min-width: 36px;
+        height: 36px;
+        padding: 0.4rem 0.6rem;
+        font-size: 1rem;
     }
 }
 
