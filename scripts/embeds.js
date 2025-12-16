@@ -516,7 +516,8 @@ export function unloadSectionMedia(sectionId) {
         pauseTwitchEmbed();
         
         // Unload Kick iframe by removing src (store original src first)
-        const kickIframe = section.querySelector('#kick-embed iframe');
+        const kickContainer = document.getElementById('kick-embed');
+        const kickIframe = kickContainer ? kickContainer.querySelector('iframe') : null;
         if (kickIframe && kickIframe.src) {
             // Store original src before clearing (only if not already stored)
             if (!kickIframe.getAttribute('data-original-src')) {
