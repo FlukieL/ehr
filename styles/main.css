@@ -45,6 +45,7 @@ body {
     left: 0;
     right: 0;
     background-color: rgba(0, 0, 0, 0.95);
+    -webkit-backdrop-filter: blur(10px);
     backdrop-filter: blur(10px);
     z-index: 1000;
     padding: 1rem 0;
@@ -1463,6 +1464,7 @@ body {
     font-size: 1.2rem;
     transition: transform var(--transition-speed) var(--transition-easing);
     user-select: none;
+    -webkit-user-select: none;
 }
 
 .chat-wrapper.collapsed .chat-toggle-icon {
@@ -1471,6 +1473,7 @@ body {
 
 .chat-container {
     background: rgba(0, 0, 0, 0.95);
+    -webkit-backdrop-filter: blur(10px); /* Added for Safari support */
     backdrop-filter: blur(10px);
     flex: 1;
     display: flex;
