@@ -32,18 +32,57 @@ def start_server(port=DEFAULT_PORT):
     handler = http.server.SimpleHTTPRequestHandler
     
     try:
-        with socketserver.TCPServer(("", port), handler) as httpd:
-            url = f"http://localhost:{port}"
-            print(f"Starting server at {url}")
-            print(f"Serving directory: {script_dir}")
-            print("Press Ctrl+C to stop the server")
-            
-            # Open browser
-            print(f"Opening browser at {url}...")
+        # Allow address reuse to avoid "Address already in use" errors
+        socketserver.TCPServer.allow_reuse_address = True
+        
+        # Bind to all interfaces (0.0.0.0) to ensure accessibility
+        httpd = socketserver.TCPServer(("0.0.0.0", port), handler)
+        url = f"http://localhost:{port}"
+        
+        print("=" * 60)
+        print(f"Server starting at {url}")
+        print(f"Also accessible at: http://127.0.0.1:{port}")
+        print(f"Serving directory: {script_dir}")
+        print("=" * 60)
+        print("Press Ctrl+C to stop the server")
+        print()
+        
+        # Flush output to ensure messages are displayed
+        sys.stdout.flush()
+        
+        # Open browser
+        print(f"Opening browser at {url}...")
+        try:
             webbrowser.open(url)
-            
-            # Start serving
+        except Exception as browser_error:
+            print(f"Warning: Could not open browser automatically: {browser_error}")
+            print(f"Please manually open: {url}")
+        
+        # Start serving - this blocks until interrupted
+        print("Server is running and ready to accept connections...")
+        sys.stdout.flush()
+        
+        try:
             httpd.serve_forever()
+        except KeyboardInterrupt:
+            print("\nShutting down server...")
+            try:
+                httpd.shutdown()
+                httpd.server_close()
+            except:
+                pass
+            print("Server stopped.")
+            sys.exit(0)
+        except Exception as serve_error:
+            print(f"\nError while serving: {serve_error}")
+            import traceback
+            traceback.print_exc()
+            try:
+                httpd.shutdown()
+                httpd.server_close()
+            except:
+                pass
+            sys.exit(1)
             
     except OSError as e:
         if "Address already in use" in str(e) or "address is already in use" in str(e).lower():
@@ -52,9 +91,11 @@ def start_server(port=DEFAULT_PORT):
             sys.exit(1)
         else:
             raise
-    except KeyboardInterrupt:
-        print("\nServer stopped.")
-        sys.exit(0)
+    except Exception as e:
+        print(f"Error starting server: {e}")
+        import traceback
+        traceback.print_exc()
+        sys.exit(1)
 
 if __name__ == "__main__":
     # Parse port from command line if provided
