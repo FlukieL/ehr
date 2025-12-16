@@ -58,6 +58,52 @@ function formatDate(dateString) {
 }
 
 /**
+ * Generates a Google Calendar URL for an event
+ * 
+ * @param {Object} event - Event object with date, time, title, description, and location
+ * @returns {string} Google Calendar URL
+ * @private
+ */
+function generateGoogleCalendarUrl(event) {
+    // Parse date and time
+    const dateStr = event.date; // YYYY-MM-DD format
+    const timeStr = event.time || '00:00'; // HH:MM format or default to midnight
+    
+    // Create start date/time
+    const [hours, minutes] = timeStr.split(':').map(Number);
+    const startDate = new Date(dateStr + 'T' + String(hours).padStart(2, '0') + ':' + String(minutes).padStart(2, '0') + ':00');
+    
+    // Default to 1 hour duration if no end time specified
+    const endDate = new Date(startDate);
+    endDate.setHours(endDate.getHours() + 1);
+    
+    // Format dates for Google Calendar (YYYYMMDDTHHMMSSZ in UTC)
+    const formatGoogleDate = (date) => {
+        const year = date.getUTCFullYear();
+        const month = String(date.getUTCMonth() + 1).padStart(2, '0');
+        const day = String(date.getUTCDate()).padStart(2, '0');
+        const hour = String(date.getUTCHours()).padStart(2, '0');
+        const minute = String(date.getUTCMinutes()).padStart(2, '0');
+        const second = String(date.getUTCSeconds()).padStart(2, '0');
+        return `${year}${month}${day}T${hour}${minute}${second}Z`;
+    };
+    
+    const start = formatGoogleDate(startDate);
+    const end = formatGoogleDate(endDate);
+    
+    // Build Google Calendar URL
+    const params = new URLSearchParams({
+        action: 'TEMPLATE',
+        text: event.title || '',
+        dates: `${start}/${end}`,
+        details: event.description || '',
+        location: event.location || ''
+    });
+    
+    return `https://calendar.google.com/calendar/render?${params.toString()}`;
+}
+
+/**
  * Groups events by date
  * 
  * @param {Array} events - Array of event objects
@@ -138,11 +184,17 @@ export function renderCalendar(events, container) {
             const eventCard = document.createElement('div');
             eventCard.className = `calendar-event calendar-event-${event.type || 'default'}`;
             
+            const googleCalendarUrl = generateGoogleCalendarUrl(event);
+            
             eventCard.innerHTML = `
                 <div class="event-time">${event.time || 'All Day'}</div>
                 <div class="event-title">${event.title}</div>
                 ${event.location ? `<div class="event-location">${event.location}</div>` : ''}
                 ${event.description ? `<div class="event-description">${event.description}</div>` : ''}
+                <a href="${googleCalendarUrl}" target="_blank" rel="noopener noreferrer" class="event-calendar-button" aria-label="Add to Google Calendar">
+                    <span class="event-calendar-icon">📅</span>
+                    <span class="event-calendar-text">Add to Google Calendar</span>
+                </a>
             `;
             
             eventsList.appendChild(eventCard);

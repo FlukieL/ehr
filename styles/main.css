@@ -1063,6 +1063,40 @@ body {
     font-size: 0.85rem;
     color: rgba(255, 255, 255, 0.6);
     line-height: 1.5;
+    margin-bottom: 0.75rem;
+}
+
+.event-calendar-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+    padding: 0.5rem 1rem;
+    background: rgba(255, 107, 53, 0.2);
+    border: 1px solid var(--accent-orange);
+    border-radius: 4px;
+    color: var(--accent-orange);
+    text-decoration: none;
+    font-size: 0.85rem;
+    font-weight: 600;
+    transition: all var(--transition-speed) var(--transition-easing);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.event-calendar-button:hover {
+    background: var(--accent-orange);
+    color: var(--bg-primary);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(255, 107, 53, 0.4);
+}
+
+.event-calendar-icon {
+    font-size: 1rem;
+}
+
+.event-calendar-text {
+    font-size: 0.8rem;
 }
 
 .no-events {
