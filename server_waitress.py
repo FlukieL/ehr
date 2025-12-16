@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """
-Local Development Server using Waitress
-A stable, production-ready server with better error handling and debugging.
+Stable Local Development Server using Waitress
+A more robust alternative to the basic HTTP server with better error handling and debugging.
 
 Usage:
-    python server.py [port]
+    python server_waitress.py [port]
     
 Requirements:
     pip install waitress
@@ -17,6 +17,8 @@ import traceback
 import time
 from pathlib import Path
 from waitress import serve
+from wsgiref.simple_server import make_server
+from wsgiref.util import FileWrapper
 import mimetypes
 
 # Default port
@@ -225,7 +227,6 @@ if __name__ == "__main__":
         except ImportError:
             print("[ERROR] Waitress is not installed.")
             print("[ERROR] Please install it with: pip install waitress")
-            print("[ERROR] Or install from requirements: pip install -r requirements.txt")
             sys.exit(1)
         
         # Parse port from command line if provided
@@ -240,7 +241,7 @@ if __name__ == "__main__":
             except ValueError:
                 print(f"[ERROR] Invalid port number '{sys.argv[1]}'")
                 print(f"[ERROR] Port must be a number")
-                print(f"Usage: python server.py [port]")
+                print(f"Usage: python server_waitress.py [port]")
                 sys.exit(1)
         
         print(f"[INFO] Starting Waitress server on port {port}...")
