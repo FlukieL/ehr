@@ -102,10 +102,10 @@ export function switchStream(stream) {
         kickPlayer.classList.add('active');
         twitchPlayer.classList.remove('active');
         
-        // Switch to Kick chat
+        // Always use Twitch chat for both streams
         if (kickChat && twitchChat) {
-            kickChat.classList.add('active');
-            twitchChat.classList.remove('active');
+            twitchChat.classList.add('active');
+            kickChat.classList.remove('active');
         }
         
         // Reload Kick stream
