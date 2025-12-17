@@ -83,12 +83,54 @@ export function playRandomAnimation() {
 }
 
 /**
+ * Fixed breakpoint width for switching to mobile layout
+ * Below this width, navigation will use mobile grid layout
+ * @type {number}
+ */
+const MOBILE_LAYOUT_BREAKPOINT = 1100;
+
+/**
+ * Automatically switches to mobile mode based on window width
+ * Uses a fixed breakpoint to prevent flickering
+ * 
+ * @private
+ */
+function handleNavigationOverflow() {
+    const header = document.querySelector('.header');
+    
+    if (!header) {
+        return;
+    }
+    
+    // Below 768px, always use mobile mode (handled by CSS media query)
+    if (window.innerWidth <= 768) {
+        return; // Don't interfere with CSS mobile mode
+    }
+    
+    // Between 769px and breakpoint, use mobile grid layout
+    // Above breakpoint, use desktop layout
+    const shouldBeCollapsed = window.innerWidth < MOBILE_LAYOUT_BREAKPOINT;
+    const isCurrentlyCollapsed = header.classList.contains('collapsed');
+    
+    // Only change state if it's different
+    if (shouldBeCollapsed !== isCurrentlyCollapsed) {
+        if (shouldBeCollapsed) {
+            header.classList.add('collapsed');
+        } else {
+            header.classList.remove('collapsed');
+        }
+    }
+}
+
+
+/**
  * Initialises logo animations
  * 
  * Sets up:
  * - Animation on page load
  * - Animation every 69 seconds
  * - Animation on logo click
+ * - Automatic mobile mode when navigation overflows
  * 
  * @example
  * initLogoAnimations();
@@ -114,11 +156,29 @@ export function initLogoAnimations() {
         e.preventDefault();
         playRandomAnimation();
         
-        // Toggle header collapse/expand on mobile devices
+        // Toggle header collapse/expand on mobile devices only
+        // (Above 768px, collapse is handled automatically by overflow detection)
         if (isMobileDevice()) {
             toggleHeaderCollapse();
         }
     });
+
+    // Set up navigation layout switching based on window width
+    const header = document.querySelector('.header');
+    
+    if (header) {
+        // Check on initial load
+        handleNavigationOverflow();
+        
+        // Check on window resize with debounce
+        let resizeTimeout;
+        window.addEventListener('resize', () => {
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(() => {
+                handleNavigationOverflow();
+            }, 100); // Simple debounce for resize events
+        });
+    }
 
     console.log('Logo animations initialised');
 }
