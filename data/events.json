@@ -2,11 +2,11 @@
   "events": [
     {
       "id": 1,
-      "title": "Xmas Live DJ Set",
+      "title": "Xmas Live Test DJ Set",
       "date": "2025-12-18",
       "time": "20:00",
       "location": "Online",
-      "description": "Live streaming DJ set on Kick and Twitch",
+      "description": "Testing this website live prior to a proper set",
       "type": "stream"
     },
     {
