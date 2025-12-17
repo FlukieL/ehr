@@ -804,6 +804,9 @@ export function loadVideoArchives(videoArchives) {
         // Load first video by default
         loadVideoInPlayer(sortedArchives[0], 0, sortedArchives, playlistContainer);
     }
+
+    // Initialise playlist toggle button (desktop only)
+    initVideoPlaylistToggle();
 }
 
 /**
@@ -1310,6 +1313,50 @@ export function unloadStream(stream) {
             kickIframe.setAttribute('data-original-src', kickIframe.src);
             kickIframe.src = '';
         }
+    }
+}
+
+/**
+ * Initialises the video playlist toggle button for theatre mode (desktop only)
+ * Similar to how chat toggle works in live streams
+ * 
+ * @private
+ */
+function initVideoPlaylistToggle() {
+    const playlistToggle = document.getElementById('video-playlist-toggle');
+    const playlistWrapper = document.getElementById('video-playlist-wrapper');
+    const videoArchivesSection = document.getElementById('video-archives');
+    
+    if (!playlistToggle || !playlistWrapper || !videoArchivesSection) {
+        return;
+    }
+
+    // Toggle playlist wrapper collapsed state
+    playlistToggle.addEventListener('click', (e) => {
+        e.stopPropagation();
+        toggleVideoPlaylistWrapper();
+    });
+}
+
+/**
+ * Toggles the video playlist wrapper expand/collapse state
+ * Similar to toggleChatWrapper for live streams
+ * 
+ * @private
+ */
+function toggleVideoPlaylistWrapper() {
+    const playlistWrapper = document.getElementById('video-playlist-wrapper');
+    
+    if (!playlistWrapper) {
+        return;
+    }
+
+    const isCollapsed = playlistWrapper.classList.contains('collapsed');
+    
+    if (isCollapsed) {
+        playlistWrapper.classList.remove('collapsed');
+    } else {
+        playlistWrapper.classList.add('collapsed');
     }
 }
 
