@@ -771,9 +771,15 @@ export function loadVideoArchives(videoArchives) {
             });
             playlistItem.appendChild(shareButton);
             
-            // Add click handler to load video (on content wrapper, not share button)
-            contentWrapper.addEventListener('click', () => {
-                loadVideoInPlayer(item, globalIndex, sortedArchives, playlistContainer);
+            // Add click handler to load video (on playlist item, not share button)
+            playlistItem.addEventListener('click', (e) => {
+                // Don't trigger if clicking the share button
+                if (e.target.closest('.video-playlist-item-share')) {
+                    return;
+                }
+                // Use the index from the dataset to ensure we're using the correct value
+                const clickedIndex = parseInt(playlistItem.dataset.videoIndex, 10);
+                loadVideoInPlayer(item, clickedIndex, sortedArchives, playlistContainer);
             });
             
             // Set up scroll animation observer for this item
@@ -825,14 +831,25 @@ function loadVideoInPlayer(videoItem, index, allVideos, playlistContainer) {
         return;
     }
 
-    // Update active state in playlist
-    const playlistItems = playlistContainer.querySelectorAll('.video-playlist-item');
+    // Update active state in playlist - query from document to ensure we get all items
+    const playlistItems = document.querySelectorAll('.video-playlist-item');
+    
+    // First, remove active class from all items
     playlistItems.forEach((item) => {
-        const itemIndex = parseInt(item.dataset.videoIndex);
-        if (itemIndex === index) {
+        item.classList.remove('active');
+    });
+    
+    // Then, add active class to the selected item using the video key for more reliable matching
+    const targetKey = videoItem.key;
+    playlistItems.forEach((item) => {
+        const itemKey = item.dataset.videoKey;
+        const itemIndex = parseInt(item.dataset.videoIndex, 10);
+        
+        // Match by key if available, otherwise by index
+        if (targetKey && itemKey === targetKey) {
             item.classList.add('active');
-        } else {
-            item.classList.remove('active');
+        } else if (!isNaN(itemIndex) && itemIndex === index) {
+            item.classList.add('active');
         }
     });
 
