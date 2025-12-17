@@ -191,20 +191,43 @@ export function createIframeEmbed(embedUrl, containerId, options = {}) {
  * @param {string} archiveItem.title - The title of the archive item
  * @param {string} archiveItem.url - The URL of the archive item
  * @param {string} archiveItem.embedUrl - The embed URL for the archive item
+ * @param {string} archiveItem.key - The unique key for the archive item
  * @param {HTMLElement} container - The container element to append the archive item to
  * 
  * @example
- * const item = { platform: 'mixcloud', title: 'My Mix', url: '...', embedUrl: '...' };
+ * const item = { platform: 'mixcloud', title: 'My Mix', url: '...', embedUrl: '...', key: '...' };
  * createAudioArchiveItem(item, document.getElementById('audio-archives-container'));
  */
 export function createAudioArchiveItem(archiveItem, container) {
     const itemDiv = document.createElement('div');
     itemDiv.className = 'archive-item';
+    if (archiveItem.key) {
+        itemDiv.dataset.audioKey = archiveItem.key;
+    }
 
+    // Create header with title and share button
+    const headerDiv = document.createElement('div');
+    headerDiv.className = 'archive-item-header';
+    
     const titleDiv = document.createElement('div');
     titleDiv.className = 'archive-title';
     titleDiv.textContent = archiveItem.title;
-    itemDiv.appendChild(titleDiv);
+    headerDiv.appendChild(titleDiv);
+
+    // Add share button
+    if (archiveItem.key) {
+        const shareButton = document.createElement('button');
+        shareButton.className = 'archive-item-share';
+        shareButton.setAttribute('aria-label', `Share ${archiveItem.title}`);
+        shareButton.innerHTML = '🔗';
+        shareButton.addEventListener('click', (e) => {
+            e.stopPropagation();
+            shareAudioSet(archiveItem);
+        });
+        headerDiv.appendChild(shareButton);
+    }
+    
+    itemDiv.appendChild(headerDiv);
 
     // Add date if available
     if (archiveItem.created_time) {
@@ -228,7 +251,22 @@ export function createAudioArchiveItem(archiveItem, container) {
     embedDiv.id = uniqueId;
     itemDiv.appendChild(embedDiv);
 
+    // Make item clickable to update URL
+    if (archiveItem.key) {
+        itemDiv.style.cursor = 'pointer';
+        itemDiv.addEventListener('click', (e) => {
+            // Don't trigger if clicking on share button or embed
+            if (e.target.closest('.archive-item-share') || e.target.closest('.archive-embed')) {
+                return;
+            }
+            updateAudioSetUrl(archiveItem);
+        });
+    }
+
     container.appendChild(itemDiv);
+
+    // Set up scroll animation observer for this item
+    setupArchiveItemAnimation(itemDiv);
 
     // Initialise the appropriate embed based on platform
     if (archiveItem.platform === 'mixcloud') {
@@ -241,6 +279,39 @@ export function createAudioArchiveItem(archiveItem, container) {
     } else {
         console.warn(`Unknown audio platform: ${archiveItem.platform}`);
     }
+}
+
+/**
+ * Sets up Intersection Observer for archive item scroll animations
+ * Creates a jukebox-style animation when items enter/exit the viewport
+ * 
+ * @param {HTMLElement} itemElement - The archive item element to animate
+ * @private
+ */
+function setupArchiveItemAnimation(itemElement) {
+    // Add initial hidden state
+    itemElement.classList.add('archive-item-animate');
+    
+    // Create observer for this item
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                // Item entering viewport - animate in
+                entry.target.classList.add('archive-item-visible');
+                entry.target.classList.remove('archive-item-hidden');
+            } else {
+                // Item leaving viewport - animate out (optional, for scroll up)
+                entry.target.classList.add('archive-item-hidden');
+                entry.target.classList.remove('archive-item-visible');
+            }
+        });
+    }, {
+        root: null,
+        rootMargin: '50px', // Start animation slightly before entering viewport
+        threshold: 0.1
+    });
+    
+    observer.observe(itemElement);
 }
 
 /**
@@ -311,7 +382,7 @@ export function initLiveStreams(kickChannel, twitchChannel) {
 }
 
 /**
- * Loads and displays audio archives from configuration
+ * Loads and displays audio archives from configuration, grouped by year with lazy loading
  * 
  * @param {Array} audioArchives - Array of audio archive items from config
  * 
@@ -342,12 +413,207 @@ export function loadAudioArchives(audioArchives) {
         return dateB - dateA; // Descending order (newest first)
     });
 
-    sortedArchives.forEach((item, index) => {
-        // Small delay to prevent overwhelming the browser
-        setTimeout(() => {
-            createAudioArchiveItem(item, container);
-        }, index * 100);
+    // Group archives by year
+    const archivesByYear = new Map();
+    sortedArchives.forEach(item => {
+        const year = item.created_time 
+            ? new Date(item.created_time).getFullYear() 
+            : 'Unknown';
+        
+        if (!archivesByYear.has(year)) {
+            archivesByYear.set(year, []);
+        }
+        archivesByYear.get(year).push(item);
     });
+
+    // Create year sections
+    const years = Array.from(archivesByYear.keys()).sort((a, b) => {
+        if (a === 'Unknown') return 1;
+        if (b === 'Unknown') return -1;
+        return b - a; // Descending order (newest first)
+    });
+
+    years.forEach((year, yearIndex) => {
+        const yearSection = document.createElement('div');
+        yearSection.className = 'audio-year-section';
+        yearSection.dataset.year = year;
+        yearSection.dataset.yearIndex = yearIndex;
+
+        const yearHeader = document.createElement('h2');
+        yearHeader.className = 'audio-year-header';
+        yearHeader.textContent = year;
+        yearSection.appendChild(yearHeader);
+
+        const yearContent = document.createElement('div');
+        yearContent.className = 'audio-year-content';
+        yearContent.dataset.loaded = 'false';
+        yearSection.appendChild(yearContent);
+
+        container.appendChild(yearSection);
+    });
+
+    // Set up Intersection Observer for lazy loading
+    const observerOptions = {
+        root: null,
+        rootMargin: '200px', // Start loading 200px before the section comes into view
+        threshold: 0.1
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const yearSection = entry.target;
+                const yearContent = yearSection.querySelector('.audio-year-content');
+                const year = yearSection.dataset.year;
+                const loaded = yearContent.dataset.loaded === 'true';
+
+                if (!loaded && archivesByYear.has(parseInt(year)) || year === 'Unknown') {
+                    // Load content for this year
+                    const yearArchives = archivesByYear.get(year === 'Unknown' ? 'Unknown' : parseInt(year));
+                    
+                    yearArchives.forEach((item, index) => {
+                        setTimeout(() => {
+                            createAudioArchiveItem(item, yearContent);
+                        }, index * 50);
+                    });
+
+                    yearContent.dataset.loaded = 'true';
+                    yearSection.classList.add('loaded');
+                }
+            }
+        });
+    }, observerOptions);
+
+    // Observe all year sections
+    const yearSections = container.querySelectorAll('.audio-year-section');
+    yearSections.forEach(section => observer.observe(section));
+
+    // Load first year immediately
+    if (yearSections.length > 0) {
+        const firstSection = yearSections[0];
+        const firstYearContent = firstSection.querySelector('.audio-year-content');
+        const firstYear = firstSection.dataset.year;
+        const firstYearArchives = archivesByYear.get(firstYear === 'Unknown' ? 'Unknown' : parseInt(firstYear));
+        
+        firstYearArchives.forEach((item, index) => {
+            setTimeout(() => {
+                createAudioArchiveItem(item, firstYearContent);
+            }, index * 50);
+        });
+        
+        firstYearContent.dataset.loaded = 'true';
+        firstSection.classList.add('loaded');
+    }
+
+    // Check URL for audio parameter and scroll to that set
+    const urlParams = new URLSearchParams(window.location.search);
+    const audioKey = urlParams.get('audio');
+    if (audioKey) {
+        // Wait for content to load, then scroll to the item
+        setTimeout(() => {
+            scrollToAudioSet(audioKey);
+        }, 500);
+    }
+}
+
+/**
+ * Updates the URL with the audio set key
+ * 
+ * @param {Object} archiveItem - The archive item to set in the URL
+ */
+function updateAudioSetUrl(archiveItem) {
+    if (!archiveItem.key) return;
+
+    const url = new URL(window.location.href);
+    const audioArchivesSection = document.getElementById('audio-archives');
+    
+    // Only update URL if audio-archives section is active
+    if (audioArchivesSection && audioArchivesSection.classList.contains('active')) {
+        url.searchParams.set('audio', archiveItem.key);
+        window.history.replaceState({}, '', url);
+        
+        // Highlight the selected item
+        highlightAudioSet(archiveItem.key);
+    }
+}
+
+/**
+ * Highlights a specific audio set
+ * 
+ * @param {string} audioKey - The key of the audio set to highlight
+ */
+function highlightAudioSet(audioKey) {
+    // Remove existing highlights
+    const existingHighlighted = document.querySelectorAll('.archive-item.highlighted');
+    existingHighlighted.forEach(item => item.classList.remove('highlighted'));
+
+    // Find and highlight the item
+    const item = document.querySelector(`[data-audio-key="${audioKey}"]`);
+    if (item) {
+        item.classList.add('highlighted');
+        // Scroll into view with smooth behavior
+        item.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+}
+
+/**
+ * Scrolls to a specific audio set based on its key
+ * 
+ * @param {string} audioKey - The key of the audio set to scroll to
+ */
+function scrollToAudioSet(audioKey) {
+    const item = document.querySelector(`[data-audio-key="${audioKey}"]`);
+    if (item) {
+        // Ensure the year section is loaded
+        const yearSection = item.closest('.audio-year-section');
+        if (yearSection) {
+            const yearContent = yearSection.querySelector('.audio-year-content');
+            if (yearContent && yearContent.dataset.loaded === 'false') {
+                // Force load this year section
+                const year = yearSection.dataset.year;
+                // This will be handled by the observer, but we can trigger it manually
+                yearSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }
+        
+        // Wait a bit for content to load, then scroll to item
+        setTimeout(() => {
+            highlightAudioSet(audioKey);
+        }, 300);
+    }
+}
+
+/**
+ * Shares an audio set by copying the URL to clipboard or using Web Share API
+ * 
+ * @param {Object} archiveItem - The archive item to share
+ */
+function shareAudioSet(archiveItem) {
+    if (!archiveItem.key) return;
+
+    const url = new URL(window.location.href);
+    url.searchParams.set('audio', archiveItem.key);
+    
+    const shareUrl = url.toString();
+    const shareTitle = archiveItem.title || 'Audio Set';
+    const shareText = `Check out ${shareTitle} on Electric Heater Room`;
+
+    // Try Web Share API first (mobile-friendly)
+    if (navigator.share) {
+        navigator.share({
+            title: shareTitle,
+            text: shareText,
+            url: shareUrl
+        }).catch((error) => {
+            // User cancelled or error occurred, fall back to clipboard
+            if (error.name !== 'AbortError') {
+                copyToClipboard(shareUrl);
+            }
+        });
+    } else {
+        // Fall back to clipboard
+        copyToClipboard(shareUrl);
+    }
 }
 
 /**

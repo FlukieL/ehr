@@ -116,6 +116,28 @@ export function switchSection(sectionId, animate = true) {
         return;
     }
 
+    // Special handling for audio-archives: even if already on this section, 
+    // clicking the tab should clear URL params and scroll to top
+    const isAudioArchivesClick = sectionId === 'audio-archives' && animate && activeSection === sectionId;
+    
+    if (isAudioArchivesClick) {
+        // Already on audio-archives, just clear URL and scroll to top
+        const url = new URL(window.location.href);
+        url.searchParams.delete('audio');
+        window.history.replaceState({}, '', url);
+        
+        // Remove any highlighted items
+        const highlightedItems = document.querySelectorAll('.archive-item.highlighted');
+        highlightedItems.forEach(item => item.classList.remove('highlighted'));
+        
+        // Scroll to top
+        window.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+        });
+        return;
+    }
+    
     if (activeSection === sectionId) {
         return; // Already on this section
     }
@@ -172,6 +194,48 @@ export function switchSection(sectionId, animate = true) {
             chatWrapper.style.display = 'flex';
         } else {
             chatWrapper.style.display = 'none';
+        }
+    }
+
+    // Handle audio parameter when switching to audio-archives
+    if (sectionId === 'audio-archives') {
+        // Clear audio parameter from URL when clicking the tab (user-initiated navigation)
+        if (animate) {
+            const url = new URL(window.location.href);
+            url.searchParams.delete('audio');
+            window.history.replaceState({}, '', url);
+            
+            // Remove any highlighted items
+            const highlightedItems = document.querySelectorAll('.archive-item.highlighted');
+            highlightedItems.forEach(item => item.classList.remove('highlighted'));
+        } else {
+            // On page load (no animation), check if there's an audio parameter to scroll to
+            const urlParams = new URLSearchParams(window.location.search);
+            const audioKey = urlParams.get('audio');
+            if (audioKey) {
+                // Wait a bit for content to load, then scroll to the item
+                setTimeout(() => {
+                    const item = document.querySelector(`[data-audio-key="${audioKey}"]`);
+                    if (item) {
+                        // Ensure the year section is loaded
+                        const yearSection = item.closest('.audio-year-section');
+                        if (yearSection) {
+                            const yearContent = yearSection.querySelector('.audio-year-content');
+                            if (yearContent && yearContent.dataset.loaded === 'false') {
+                                // Trigger loading by scrolling into view
+                                yearSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                            }
+                        }
+                        
+                        // Scroll to item after a delay
+                        setTimeout(() => {
+                            item.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                            item.classList.add('highlighted');
+                        }, 500);
+                    }
+                }, 300);
+                return; // Don't scroll to top if we're scrolling to a specific item on page load
+            }
         }
     }
 
