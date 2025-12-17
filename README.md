@@ -48,20 +48,34 @@ ehr/
 │   ├── config.js            # Configuration loader
 │   ├── embeds.js            # Stream and archive embed management
 │   ├── events.js            # Events calendar functionality
+│   ├── fetch_mixcloud.py    # Python script to fetch Mixcloud/hearthis.at content
+│   ├── fetch_vk_videos.py   # Python script to fetch VK Video content
+│   ├── generate_favicon.py  # Python script to generate favicon files
 │   ├── logo-animations.js   # Logo animation system
 │   ├── main.js              # Main application initialisation
 │   ├── navigation.js        # Section navigation and animations
-│   └── stream-controls.js   # Stream tab switching and chat controls
+│   ├── stream-controls.js   # Stream tab switching and chat controls
+│   └── update_vk_titles.py  # Python script to update VK video titles
 ├── styles/
 │   └── main.css             # Main stylesheet
-└── index.html               # Main HTML file
+├── .github/
+│   └── workflows/
+│       └── jekyll-gh-pages.yml  # GitHub Pages deployment workflow
+├── server.py                # Python Waitress server (recommended)
+├── server_basic.py          # Basic Python HTTP server
+├── server_waitress.py        # Alternative Waitress server implementation
+├── requirements.txt         # Python dependencies
+├── manifest.json            # Web app manifest
+├── index.html               # Main HTML file
+└── favicon files            # Various favicon sizes and formats
 ```
 
 ## Setup
 
 ### Prerequisites
-- A web server (for local development, Python's HTTP server works well)
+- A web server (for local development)
 - Modern web browser with JavaScript enabled
+- Python 3 (optional, for Python server and utility scripts)
 
 ### Installation
 
@@ -69,25 +83,78 @@ ehr/
 2. Ensure all files are in the project directory
 3. Start a local web server:
 
+**Option 1: Python Waitress Server (Recommended)**
+```bash
+# Install dependencies
+pip install -r requirements.txt
+
+# Start the server (defaults to port 8000)
+python server.py
+
+# Or specify a custom port
+python server.py 8080
+```
+
+**Option 2: Python HTTP Server**
 ```bash
 # Using Python 3
 python -m http.server 8000
 
 # Using Python 2
 python -m SimpleHTTPServer 8000
+```
 
-# Using Node.js (with http-server installed)
+**Option 3: Node.js**
+```bash
+# Using http-server (requires installation)
 npx http-server -p 8000
 ```
 
 4. Open your browser and navigate to `http://localhost:8000`
 
+The Waitress server (Option 1) is recommended as it provides better stability, error handling, and automatically opens your browser.
+
 ### Production Deployment
 
-For production deployment:
+**GitHub Pages:**
+The project includes a GitHub Actions workflow for automatic deployment to GitHub Pages. Simply push to the `main` branch and the site will be automatically built and deployed.
+
+**Manual Deployment:**
 1. Upload all files to your web server
 2. Ensure the server supports serving static files
 3. Update the Twitch chat embed `parent` parameter in `scripts/chat-init.js` if needed (it auto-detects the hostname)
+
+## Utility Scripts
+
+### Fetching Content
+
+**Mixcloud and hearthis.at:**
+```bash
+python scripts/fetch_mixcloud.py [mixcloud_username] [hearthis_username]
+```
+Example:
+```bash
+python scripts/fetch_mixcloud.py FlukieL flukie
+```
+This script fetches uploads from both platforms and updates `data/archives.json`.
+
+**VK Videos:**
+```bash
+python scripts/fetch_vk_videos.py
+```
+Fetches video playlists from VK and updates the video section in `data/archives.json`.
+
+**Update VK Titles:**
+```bash
+python scripts/update_vk_titles.py
+```
+Updates video titles in the archives configuration.
+
+**Generate Favicons:**
+```bash
+python scripts/generate_favicon.py
+```
+Generates favicon files in various sizes from a source image.
 
 ## Configuration
 
@@ -199,6 +266,10 @@ To update chat URLs, edit `index.html`:
 ### External Dependencies
 - **Twitch Embed API**: `https://embed.twitch.tv/embed/v1.js`
 - **Mixcloud Widget API**: `https://widget.mixcloud.com/media/js/widgetApi.js`
+
+### Python Dependencies
+- **waitress**: Production-ready WSGI server (for `server.py`)
+  - Install with: `pip install -r requirements.txt`
 
 ### Browser Support
 - Chrome/Edge (latest)
