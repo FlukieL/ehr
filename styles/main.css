@@ -951,6 +951,7 @@ body {
     width: 400px;
     max-height: calc(100vh - 200px);
     overflow-y: auto;
+    overflow-x: hidden;
     display: flex;
     flex-direction: column;
     gap: 0.75rem;
@@ -969,6 +970,8 @@ body {
     cursor: pointer;
     transition: all var(--transition-speed) var(--transition-easing);
     position: relative;
+    min-width: 0;
+    overflow: hidden;
 }
 
 .video-playlist-item:hover {
@@ -997,6 +1000,8 @@ body {
     margin-bottom: 0.5rem;
     font-weight: 500;
     line-height: 1.4;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
 }
 
 .video-playlist-item-date {
@@ -1030,6 +1035,76 @@ body {
 
 .video-playlist-item-share:active {
     transform: scale(0.95);
+}
+
+/* Video Year Sections */
+.video-year-section {
+    margin-bottom: 2rem;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: opacity 0.5s var(--transition-easing), transform 0.5s var(--transition-easing);
+}
+
+.video-year-section.loaded {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.video-year-header {
+    font-size: 1.5rem;
+    color: var(--accent-orange);
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid rgba(255, 107, 53, 0.3);
+    position: sticky;
+    top: 0;
+    background: rgba(0, 0, 0, 0.9);
+    z-index: 10;
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    transition: border-color var(--transition-speed) var(--transition-easing);
+}
+
+.video-year-section.loaded .video-year-header {
+    border-bottom-color: rgba(255, 107, 53, 0.5);
+}
+
+.video-year-content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    opacity: 0;
+    transition: opacity 0.3s var(--transition-easing) 0.1s;
+}
+
+.video-year-section.loaded .video-year-content {
+    opacity: 1;
+}
+
+/* Subtle leftward jukebox-style scroll animation for video playlist items */
+.video-playlist-item-animate {
+    opacity: 0;
+    transform: translateX(-60px) rotate(-3deg) scale(0.95);
+    filter: blur(2px);
+    transition: opacity 0.7s cubic-bezier(0.25, 1, 0.5, 1),
+                transform 0.7s cubic-bezier(0.25, 1, 0.5, 1),
+                filter 0.7s cubic-bezier(0.25, 1, 0.5, 1);
+    will-change: transform, opacity, filter;
+}
+
+.video-playlist-item-animate.video-playlist-item-visible {
+    opacity: 1;
+    transform: translateX(0) rotate(0deg) scale(1);
+    filter: blur(0);
+}
+
+.video-playlist-item-animate.video-playlist-item-hidden {
+    opacity: 0;
+    transform: translateX(40px) rotate(2deg) scale(0.97);
+    filter: blur(2px);
+    transition: opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1),
+                transform 0.5s cubic-bezier(0.4, 0, 0.2, 1),
+                filter 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* Share confirmation message */

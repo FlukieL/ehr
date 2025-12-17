@@ -315,6 +315,39 @@ function setupArchiveItemAnimation(itemElement) {
 }
 
 /**
+ * Sets up Intersection Observer for video playlist item scroll animations
+ * Creates a subtle jukebox-style animation moving leftwards when items enter/exit the viewport
+ * 
+ * @param {HTMLElement} itemElement - The video playlist item element to animate
+ * @private
+ */
+function setupVideoPlaylistItemAnimation(itemElement) {
+    // Add initial hidden state
+    itemElement.classList.add('video-playlist-item-animate');
+    
+    // Create observer for this item
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                // Item entering viewport - animate in
+                entry.target.classList.add('video-playlist-item-visible');
+                entry.target.classList.remove('video-playlist-item-hidden');
+            } else {
+                // Item leaving viewport - animate out (optional, for scroll up)
+                entry.target.classList.add('video-playlist-item-hidden');
+                entry.target.classList.remove('video-playlist-item-visible');
+            }
+        });
+    }, {
+        root: null,
+        rootMargin: '50px', // Start animation slightly before entering viewport
+        threshold: 0.1
+    });
+    
+    observer.observe(itemElement);
+}
+
+/**
  * Creates a video archive embed item
  * 
  * @param {Object} archiveItem - The archive item data from config
@@ -617,7 +650,7 @@ function shareAudioSet(archiveItem) {
 }
 
 /**
- * Loads and displays video archives from configuration in YouTube-like layout
+ * Loads and displays video archives from configuration in YouTube-like layout, grouped by year
  * 
  * @param {Array} videoArchives - Array of video archive items from config
  * 
@@ -651,57 +684,108 @@ export function loadVideoArchives(videoArchives) {
         return dateB - dateA; // Descending order (newest first)
     });
 
-    // Create playlist items
-    sortedArchives.forEach((item, index) => {
-        const playlistItem = document.createElement('div');
-        playlistItem.className = 'video-playlist-item';
-        playlistItem.dataset.videoIndex = index;
-        playlistItem.dataset.videoKey = item.key || '';
+    // Group archives by year
+    const archivesByYear = new Map();
+    sortedArchives.forEach(item => {
+        const year = item.created_time 
+            ? new Date(item.created_time).getFullYear() 
+            : 'Unknown';
         
-        // Create content wrapper
-        const contentWrapper = document.createElement('div');
-        contentWrapper.className = 'video-playlist-item-content';
-        
-        // Add title
-        const titleDiv = document.createElement('div');
-        titleDiv.className = 'video-playlist-item-title';
-        titleDiv.textContent = item.title || 'Untitled';
-        contentWrapper.appendChild(titleDiv);
-        
-        // Add date if available
-        if (item.created_time) {
-            const dateDiv = document.createElement('div');
-            dateDiv.className = 'video-playlist-item-date';
-            const date = new Date(item.created_time);
-            // Format as DD/MM/YYYY (British format)
-            const formattedDate = date.toLocaleDateString('en-GB', {
-                day: '2-digit',
-                month: '2-digit',
-                year: 'numeric'
-            });
-            dateDiv.textContent = formattedDate;
-            contentWrapper.appendChild(dateDiv);
+        if (!archivesByYear.has(year)) {
+            archivesByYear.set(year, []);
         }
-        
-        playlistItem.appendChild(contentWrapper);
-        
-        // Add share button
-        const shareButton = document.createElement('button');
-        shareButton.className = 'video-playlist-item-share';
-        shareButton.setAttribute('aria-label', `Share ${item.title || 'video'}`);
-        shareButton.innerHTML = '🔗';
-        shareButton.addEventListener('click', (e) => {
-            e.stopPropagation(); // Prevent triggering the playlist item click
-            shareVideo(item, index);
+        archivesByYear.get(year).push(item);
+    });
+
+    // Create year sections
+    const years = Array.from(archivesByYear.keys()).sort((a, b) => {
+        if (a === 'Unknown') return 1;
+        if (b === 'Unknown') return -1;
+        return b - a; // Descending order (newest first)
+    });
+
+    // Keep track of global index for video items
+    let globalIndex = 0;
+
+    years.forEach((year, yearIndex) => {
+        const yearSection = document.createElement('div');
+        yearSection.className = 'video-year-section';
+        yearSection.dataset.year = year;
+        yearSection.dataset.yearIndex = yearIndex;
+
+        const yearHeader = document.createElement('h3');
+        yearHeader.className = 'video-year-header';
+        yearHeader.textContent = year;
+        yearSection.appendChild(yearHeader);
+
+        const yearContent = document.createElement('div');
+        yearContent.className = 'video-year-content';
+        yearContent.dataset.loaded = 'false';
+        yearSection.appendChild(yearContent);
+
+        playlistContainer.appendChild(yearSection);
+
+        // Create playlist items for this year
+        const yearArchives = archivesByYear.get(year);
+        yearArchives.forEach((item) => {
+            const playlistItem = document.createElement('div');
+            playlistItem.className = 'video-playlist-item';
+            playlistItem.dataset.videoIndex = globalIndex;
+            playlistItem.dataset.videoKey = item.key || '';
+            
+            // Create content wrapper
+            const contentWrapper = document.createElement('div');
+            contentWrapper.className = 'video-playlist-item-content';
+            
+            // Add title
+            const titleDiv = document.createElement('div');
+            titleDiv.className = 'video-playlist-item-title';
+            titleDiv.textContent = item.title || 'Untitled';
+            contentWrapper.appendChild(titleDiv);
+            
+            // Add date if available
+            if (item.created_time) {
+                const dateDiv = document.createElement('div');
+                dateDiv.className = 'video-playlist-item-date';
+                const date = new Date(item.created_time);
+                // Format as DD/MM/YYYY (British format)
+                const formattedDate = date.toLocaleDateString('en-GB', {
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric'
+                });
+                dateDiv.textContent = formattedDate;
+                contentWrapper.appendChild(dateDiv);
+            }
+            
+            playlistItem.appendChild(contentWrapper);
+            
+            // Add share button
+            const shareButton = document.createElement('button');
+            shareButton.className = 'video-playlist-item-share';
+            shareButton.setAttribute('aria-label', `Share ${item.title || 'video'}`);
+            shareButton.innerHTML = '🔗';
+            shareButton.addEventListener('click', (e) => {
+                e.stopPropagation(); // Prevent triggering the playlist item click
+                shareVideo(item, globalIndex);
+            });
+            playlistItem.appendChild(shareButton);
+            
+            // Add click handler to load video (on content wrapper, not share button)
+            contentWrapper.addEventListener('click', () => {
+                loadVideoInPlayer(item, globalIndex, sortedArchives, playlistContainer);
+            });
+            
+            // Set up scroll animation observer for this item
+            setupVideoPlaylistItemAnimation(playlistItem);
+            
+            yearContent.appendChild(playlistItem);
+            globalIndex++;
         });
-        playlistItem.appendChild(shareButton);
-        
-        // Add click handler to load video (on content wrapper, not share button)
-        contentWrapper.addEventListener('click', () => {
-            loadVideoInPlayer(item, index, sortedArchives, playlistContainer);
-        });
-        
-        playlistContainer.appendChild(playlistItem);
+
+        // Mark year section as loaded
+        yearSection.classList.add('loaded');
+        yearContent.dataset.loaded = 'true';
     });
 
     // Check URL for video parameter and load that video, otherwise load first
@@ -740,8 +824,9 @@ function loadVideoInPlayer(videoItem, index, allVideos, playlistContainer) {
 
     // Update active state in playlist
     const playlistItems = playlistContainer.querySelectorAll('.video-playlist-item');
-    playlistItems.forEach((item, i) => {
-        if (i === index) {
+    playlistItems.forEach((item) => {
+        const itemIndex = parseInt(item.dataset.videoIndex);
+        if (itemIndex === index) {
             item.classList.add('active');
         } else {
             item.classList.remove('active');
