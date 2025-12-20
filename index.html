@@ -111,24 +111,18 @@
                 </button>
                 <div class="chat-container" id="chat-container">
                     <div class="chat-embed-container">
-                        <div class="kick-chat-wrapper">
-                            <iframe 
-                                src="https://kick.com/popout/flukie/chat"
-                                class="chat-embed chat-kick"
-                                id="kick-chat"
-                                frameborder="0"
-                                allow="clipboard-read; clipboard-write; autoplay"
-                                referrerpolicy="strict-origin-when-cross-origin"
-                                loading="eager"
-                                title="Kick Chat">
-                            </iframe>
-                            <div class="kick-auth-helper" id="kick-auth-helper" style="display: none;">
-                                <p>Having trouble signing in? <a href="https://kick.com/login" target="_blank" rel="noopener noreferrer">Sign in on Kick.com</a>, then <button type="button" id="reload-kick-chat" class="reload-chat-btn">reload chat</button></p>
-                            </div>
-                        </div>
+                        <iframe 
+                            src="https://kick.com/popout/flukie/chat"
+                            class="chat-embed chat-kick active"
+                            id="kick-chat"
+                            frameborder="0"
+                            allow="clipboard-read; clipboard-write; autoplay"
+                            referrerpolicy="origin-when-cross-origin"
+                            title="Kick Chat">
+                        </iframe>
                         <iframe 
                             src=""
-                            class="chat-embed chat-twitch active"
+                            class="chat-embed chat-twitch"
                             id="twitch-chat"
                             frameborder="0"
                             allow="clipboard-read; clipboard-write"
