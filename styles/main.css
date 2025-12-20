@@ -908,6 +908,69 @@ body {
     align-items: flex-start;
 }
 
+/* Video Archives Theatre Mode - Desktop Only */
+@media (min-width: 769px) {
+    #video-archives.active {
+        padding: 0;
+        max-width: 100%;
+        margin: 0;
+        height: 0;
+        overflow: hidden;
+    }
+
+    #video-archives.active .section-title {
+        display: none;
+    }
+
+    #video-archives.active .video-player-layout {
+        position: fixed;
+        top: 100px;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        width: 100%;
+        height: calc(100dvh - 100px);
+        margin: 0;
+        padding: 1rem;
+        box-sizing: border-box;
+        z-index: 100;
+        background: var(--bg-primary);
+    }
+
+    #video-archives.active .video-main-player {
+        flex: 1;
+        min-width: 0;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+
+    #video-archives.active .video-player-container {
+        flex: 1;
+        min-height: 0;
+        padding-bottom: 0;
+        height: 100%;
+        border-radius: 8px;
+    }
+
+    #video-archives.active .video-playlist-wrapper {
+        width: 400px;
+        min-width: 400px;
+        max-height: 100%;
+        height: 100%;
+    }
+
+    #video-archives.active .video-playlist-wrapper.collapsed {
+        width: 30px;
+        min-width: 30px;
+    }
+
+    #video-archives.active .video-playlist {
+        max-height: 100%;
+        height: 100%;
+    }
+}
+
 .video-main-player {
     flex: 1;
     min-width: 0;
@@ -947,8 +1010,74 @@ body {
     padding: 2rem;
 }
 
-.video-playlist {
+/* Video Playlist Wrapper - similar to chat-wrapper */
+.video-playlist-wrapper {
+    display: flex;
+    flex-direction: row;
     width: 400px;
+    min-width: 400px;
+    max-height: calc(100vh - 200px);
+    transition: width var(--transition-speed) var(--transition-easing),
+                min-width var(--transition-speed) var(--transition-easing);
+    position: relative;
+    align-self: stretch;
+    gap: 0;
+}
+
+.video-playlist-wrapper.collapsed {
+    width: 30px;
+    min-width: 30px;
+}
+
+.video-playlist-toggle {
+    display: none;
+    background: var(--accent-orange);
+    border: none;
+    color: var(--bg-primary);
+    width: 30px;
+    min-width: 30px;
+    cursor: pointer;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px 0 0 4px;
+    transition: all var(--transition-speed) var(--transition-easing);
+    box-shadow: -2px 0 8px rgba(0, 0, 0, 0.3);
+    z-index: 10;
+    flex-shrink: 0;
+    margin-right: 0.5rem;
+}
+
+/* Show toggle button only in theatre mode (desktop) */
+@media (min-width: 769px) {
+    #video-archives.active .video-playlist-toggle {
+        display: flex;
+    }
+}
+
+.video-playlist-toggle:hover {
+    background: var(--accent-orange-light);
+    box-shadow: -2px 0 12px rgba(255, 107, 53, 0.5);
+}
+
+.playlist-toggle-icon {
+    font-size: 1.2rem;
+    transition: transform var(--transition-speed) var(--transition-easing);
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+.video-playlist-wrapper.collapsed .playlist-toggle-icon {
+    transform: rotate(180deg);
+}
+
+.video-playlist-wrapper.collapsed .video-playlist-toggle {
+    margin-right: 0;
+}
+
+.video-playlist {
+    flex: 1;
+    width: calc(100% - 30px - 0.5rem);
+    min-width: 0;
     max-height: calc(100vh - 200px);
     overflow-y: auto;
     overflow-x: hidden;
@@ -956,6 +1085,15 @@ body {
     flex-direction: column;
     gap: 0.75rem;
     padding-right: 0.5rem;
+    transition: opacity var(--transition-speed) var(--transition-easing),
+                visibility var(--transition-speed) var(--transition-easing);
+}
+
+.video-playlist-wrapper.collapsed .video-playlist {
+    opacity: 0;
+    visibility: hidden;
+    width: 0;
+    overflow: hidden;
 }
 
 .video-playlist-item {
@@ -1434,9 +1572,9 @@ body {
     }
 
     .chat-wrapper {
-        width: 100%;
-        min-width: 100%;
-        max-width: 100%;
+        width: 100% !important;
+        min-width: 100% !important;
+        max-width: 100% !important;
         height: auto;
         max-height: 60vh;
         margin-top: 0.5rem;
@@ -1449,20 +1587,21 @@ body {
         box-sizing: border-box;
         align-self: stretch;
         position: relative;
+        flex-direction: column;
+        order: 999;
+        transition: none;
     }
 
     .chat-wrapper.collapsed {
-        width: 50px;
-        min-width: 50px;
-        max-width: 50px;
-        height: 50px;
-        max-height: 50px;
+        width: 100% !important;
+        min-width: 100% !important;
+        max-width: 100% !important;
+        height: auto;
         flex-shrink: 0;
-        align-self: flex-start;
     }
 
     .chat-wrapper:not(.collapsed) {
-        flex-direction: row;
+        flex-direction: column;
         width: 100%;
         min-width: 100%;
         max-width: 100%;
@@ -1470,16 +1609,44 @@ body {
 
     .chat-wrapper:not(.collapsed) .chat-toggle {
         flex-shrink: 0;
-        width: 50px;
-        min-width: 50px;
+        width: 100%;
+        min-width: 100%;
+        order: 1;
+        border-radius: 8px 8px 0 0;
+        height: 33px;
+        min-height: 33px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    }
+
+    .chat-wrapper:not(.collapsed) .chat-toggle:hover {
+        box-shadow: 0 2px 12px rgba(255, 107, 53, 0.5);
+    }
+
+    .chat-wrapper.collapsed .chat-toggle {
+        width: 100%;
+        min-width: 100%;
+        border-radius: 0;
+        height: 33px;
+        min-height: 33px;
+        box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.3);
     }
 
     .chat-wrapper:not(.collapsed) .chat-container {
         max-height: 60vh;
         min-height: 0;
         flex: 1 1 auto;
-        width: calc(100% - 50px);
-        min-width: 0;
+        width: 100%;
+        min-width: 100%;
+        order: 2;
+        border-radius: 0 0 8px 8px;
+        border-left: 1px solid rgba(255, 107, 53, 0.3);
+        border-top: 2px solid var(--accent-orange);
+        display: flex;
+        opacity: 1;
+        visibility: visible;
+        transition: max-height var(--transition-speed) var(--transition-easing),
+                    opacity var(--transition-speed) var(--transition-easing),
+                    visibility var(--transition-speed) var(--transition-easing);
     }
 
     .archives-container {
@@ -1501,8 +1668,19 @@ body {
         width: 100%;
     }
 
-    .video-playlist {
+    .video-playlist-wrapper {
         width: 100%;
+        min-width: 100%;
+        max-height: 400px;
+    }
+
+    .video-playlist-wrapper.collapsed {
+        width: 30px;
+        min-width: 30px;
+    }
+
+    .video-playlist {
+        width: calc(100% - 30px - 0.5rem);
         max-height: 400px;
     }
 
@@ -1539,7 +1717,7 @@ body {
     }
 
     .chat-wrapper.collapsed {
-        width: 50px;
+        width: 30px;
     }
 
     .stream-tabs {
@@ -1761,16 +1939,16 @@ body {
 }
 
 .chat-wrapper.collapsed {
-    width: 50px;
-    min-width: 50px;
+    width: 30px;
+    min-width: 30px;
 }
 
 .chat-toggle {
     background: var(--accent-orange);
     border: none;
     color: var(--bg-primary);
-    width: 50px;
-    min-width: 50px;
+    width: 30px;
+    min-width: 30px;
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -1798,6 +1976,16 @@ body {
     transform: rotate(180deg);
 }
 
+@media (max-width: 768px) {
+    .chat-toggle-icon {
+        transform: rotate(90deg);
+    }
+
+    .chat-wrapper.collapsed .chat-toggle-icon {
+        transform: rotate(-90deg);
+    }
+}
+
 .chat-container {
     background: rgba(0, 0, 0, 0.95);
     -webkit-backdrop-filter: blur(10px); /* Added for Safari support */
@@ -1816,11 +2004,30 @@ body {
     height: 100%;
 }
 
+/* Desktop: collapse horizontally */
 .chat-wrapper.collapsed .chat-container {
     opacity: 0;
     visibility: hidden;
     width: 0;
     overflow: hidden;
+}
+
+/* Mobile: collapse vertically, keep full width */
+@media (max-width: 768px) {
+    .chat-wrapper.collapsed .chat-container {
+        max-height: 0 !important;
+        min-height: 0;
+        height: 0;
+        opacity: 0;
+        visibility: hidden;
+        overflow: hidden;
+        width: 100% !important;
+        min-width: 100% !important;
+        border: none;
+        transition: max-height var(--transition-speed) var(--transition-easing),
+                    opacity var(--transition-speed) var(--transition-easing),
+                    visibility var(--transition-speed) var(--transition-easing);
+    }
 }
 
 

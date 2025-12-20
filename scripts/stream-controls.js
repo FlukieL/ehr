@@ -57,6 +57,14 @@ export function initStreamControls() {
         }
         // On desktop, chat starts visible alongside the player
     }
+
+    // Stream share button
+    const streamShareButton = document.getElementById('stream-share-button');
+    if (streamShareButton) {
+        streamShareButton.addEventListener('click', () => {
+            shareStream();
+        });
+    }
 }
 
 /**
@@ -198,6 +206,112 @@ export function getActiveStream() {
 export function isChatWrapperExpanded() {
     const chatWrapper = document.getElementById('chat-wrapper');
     return chatWrapper ? !chatWrapper.classList.contains('collapsed') : false;
+}
+
+/**
+ * Shares the current stream by copying the URL to clipboard or using Web Share API
+ * 
+ * @example
+ * shareStream();
+ */
+export function shareStream() {
+    const currentStream = getActiveStream();
+    const url = new URL(window.location.href);
+    
+    // Remove any existing stream parameter and add the current one
+    url.searchParams.delete('stream');
+    url.searchParams.set('stream', currentStream);
+    
+    // Ensure we're on the live streams section
+    url.hash = '#live-streams';
+    
+    const shareUrl = url.toString();
+    const streamName = currentStream === 'kick' ? 'Kick' : 'Twitch';
+    const shareTitle = `Electric Heater Room - ${streamName} Stream`;
+    const shareText = `Watch the live stream on Electric Heater Room`;
+
+    // Try Web Share API first (mobile-friendly)
+    if (navigator.share) {
+        navigator.share({
+            title: shareTitle,
+            text: shareText,
+            url: shareUrl
+        }).catch((error) => {
+            // User cancelled or error occurred, fall back to clipboard
+            if (error.name !== 'AbortError') {
+                copyToClipboard(shareUrl);
+            }
+        });
+    } else {
+        // Fall back to clipboard
+        copyToClipboard(shareUrl);
+    }
+}
+
+/**
+ * Copies text to clipboard and shows a brief confirmation
+ * 
+ * @param {string} text - The text to copy
+ */
+function copyToClipboard(text) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(() => {
+            showShareConfirmation();
+        }).catch(() => {
+            // Fallback for older browsers
+            fallbackCopyToClipboard(text);
+        });
+    } else {
+        fallbackCopyToClipboard(text);
+    }
+}
+
+/**
+ * Fallback method to copy text to clipboard for older browsers
+ * 
+ * @param {string} text - The text to copy
+ */
+function fallbackCopyToClipboard(text) {
+    const textArea = document.createElement('textarea');
+    textArea.value = text;
+    textArea.style.position = 'fixed';
+    textArea.style.left = '-999999px';
+    textArea.style.top = '-999999px';
+    document.body.appendChild(textArea);
+    textArea.focus();
+    textArea.select();
+    
+    try {
+        document.execCommand('copy');
+        showShareConfirmation();
+    } catch (err) {
+        console.error('Failed to copy text:', err);
+        alert('Failed to copy link. Please copy manually:\n' + text);
+    }
+    
+    document.body.removeChild(textArea);
+}
+
+/**
+ * Shows a brief confirmation message that the link was copied
+ */
+function showShareConfirmation() {
+    // Create or update confirmation message
+    let confirmation = document.getElementById('share-confirmation');
+    if (!confirmation) {
+        confirmation = document.createElement('div');
+        confirmation.id = 'share-confirmation';
+        confirmation.className = 'share-confirmation';
+        confirmation.textContent = 'Link copied to clipboard!';
+        document.body.appendChild(confirmation);
+    }
+    
+    confirmation.classList.add('show');
+    
+    // Hide after 2 seconds
+    setTimeout(() => {
+        confirmation.classList.remove('show');
+    }, 2000);
 }
 
 /**
