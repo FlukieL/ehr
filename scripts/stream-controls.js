@@ -102,7 +102,6 @@ export function switchStream(stream) {
     }
 
     // Update active tab
-    const kickChat = document.getElementById('kick-chat');
     const twitchChat = document.getElementById('twitch-chat');
     
     if (stream === 'kick') {
@@ -112,9 +111,8 @@ export function switchStream(stream) {
         twitchPlayer.classList.remove('active');
         
         // Always use Twitch chat for both streams
-        if (kickChat && twitchChat) {
+        if (twitchChat) {
             twitchChat.classList.add('active');
-            kickChat.classList.remove('active');
         }
         
         // Reload Kick stream
@@ -136,12 +134,11 @@ export function switchStream(stream) {
         kickPlayer.classList.remove('active');
         
         // Switch to Twitch chat
-        if (kickChat && twitchChat) {
+        if (twitchChat) {
             twitchChat.classList.add('active');
-            kickChat.classList.remove('active');
             console.log('Switched to Twitch chat');
         } else {
-            console.warn('Twitch chat elements not found:', { kickChat, twitchChat });
+            console.warn('Twitch chat element not found');
         }
         
         // Reload Twitch stream
