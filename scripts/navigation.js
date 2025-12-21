@@ -197,6 +197,15 @@ export function switchSection(sectionId, animate = true) {
         }
     }
 
+    // Add/remove class to body and html to prevent scrolling on mobile when live streams is active
+    if (sectionId === 'live-streams') {
+        document.body.classList.add('live-streams-active');
+        document.documentElement.classList.add('live-streams-active');
+    } else {
+        document.body.classList.remove('live-streams-active');
+        document.documentElement.classList.remove('live-streams-active');
+    }
+
     // Handle audio parameter when switching to audio-archives
     if (sectionId === 'audio-archives') {
         // Clear audio parameter from URL when clicking the tab (user-initiated navigation)

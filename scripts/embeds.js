@@ -1358,6 +1358,16 @@ function isMobileDevice() {
 }
 
 /**
+ * Checks if the device is in landscape orientation
+ * 
+ * @returns {boolean} True if landscape, false if portrait
+ * @private
+ */
+function isLandscape() {
+    return window.innerWidth > window.innerHeight;
+}
+
+/**
  * Initialises the video playlist toggle button
  * Similar to how chat toggle works in live streams
  * 
@@ -1379,8 +1389,9 @@ function initVideoPlaylistToggle() {
         toggleVideoPlaylistWrapper();
     });
     
-    // Initialise playlist wrapper as collapsed by default on mobile devices
-    if (isMobileDevice()) {
+    // Initialise playlist wrapper as collapsed by default on landscape mobile devices only
+    // Keep expanded by default on portrait (vertical) mobile
+    if (isMobileDevice() && isLandscape()) {
         playlistWrapper.classList.add('collapsed');
     }
 }

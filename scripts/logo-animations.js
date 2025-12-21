@@ -167,15 +167,40 @@ export function initLogoAnimations() {
     const header = document.querySelector('.header');
     
     if (header) {
+        // On mobile landscape, start with header collapsed by default
+        if (isMobileLandscape()) {
+            header.classList.add('collapsed');
+        }
+        
         // Check on initial load
         handleNavigationOverflow();
         
         // Check on window resize with debounce
         let resizeTimeout;
+        let previousWidth = window.innerWidth;
+        let previousHeight = window.innerHeight;
         window.addEventListener('resize', () => {
             clearTimeout(resizeTimeout);
             resizeTimeout = setTimeout(() => {
+                const currentWidth = window.innerWidth;
+                const currentHeight = window.innerHeight;
+                const wasMobileLandscape = previousWidth <= 768 && previousWidth > previousHeight;
+                const isNowMobileLandscape = isMobileLandscape();
+                
+                // If switching to mobile landscape, ensure collapsed state
+                if (isNowMobileLandscape && !wasMobileLandscape) {
+                    header.classList.add('collapsed');
+                }
+                // If switching from mobile landscape to portrait, expand header
+                else if (wasMobileLandscape && !isNowMobileLandscape && isMobileDevice()) {
+                    header.classList.remove('collapsed');
+                }
+                
+                // Handle desktop overflow (only runs above 768px)
                 handleNavigationOverflow();
+                
+                previousWidth = currentWidth;
+                previousHeight = currentHeight;
             }, 100); // Simple debounce for resize events
         });
     }
@@ -198,12 +223,35 @@ export function stopLogoAnimations() {
 
 /**
  * Checks if the current device is a mobile device
+ * Matches CSS media query: (max-width: 768px) or (orientation: landscape) and (max-height: 768px)
  * 
  * @returns {boolean} True if mobile device, false otherwise
  * @private
  */
 function isMobileDevice() {
-    return window.innerWidth <= 768;
+    // Portrait mobile: width <= 768px
+    // Landscape mobile: height <= 768px (catches mobile devices in landscape)
+    return window.innerWidth <= 768 || (window.innerHeight <= 768 && window.innerWidth > window.innerHeight);
+}
+
+/**
+ * Checks if the device is in landscape/horizontal orientation
+ * 
+ * @returns {boolean} True if landscape, false if portrait
+ * @private
+ */
+function isLandscape() {
+    return window.innerWidth > window.innerHeight;
+}
+
+/**
+ * Checks if the device is mobile and in landscape orientation
+ * 
+ * @returns {boolean} True if mobile landscape, false otherwise
+ * @private
+ */
+function isMobileLandscape() {
+    return isMobileDevice() && isLandscape();
 }
 
 /**
@@ -213,11 +261,41 @@ function isMobileDevice() {
  */
 function toggleHeaderCollapse() {
     const header = document.querySelector('.header');
+    const nav = header?.querySelector('.nav');
     
-    if (!header) {
+    if (!header || !nav) {
         return;
     }
 
-    header.classList.toggle('collapsed');
+    const isCurrentlyCollapsed = header.classList.contains('collapsed');
+    
+    if (isCurrentlyCollapsed) {
+        // Expanding: calculate actual height and set it to prevent blank space
+        header.classList.remove('collapsed');
+        // Get natural height by temporarily removing max-height constraint
+        const currentMaxHeight = nav.style.maxHeight || getComputedStyle(nav).maxHeight;
+        nav.style.maxHeight = 'none';
+        const naturalHeight = nav.scrollHeight;
+        nav.style.maxHeight = currentMaxHeight;
+        // Set to natural height to prevent extra space
+        nav.style.maxHeight = `${naturalHeight}px`;
+        // After transition completes, allow it to grow if needed (but cap at 500px)
+        const transitionDuration = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--transition-speed')) || 0.4;
+        setTimeout(() => {
+            if (!header.classList.contains('collapsed')) {
+                nav.style.maxHeight = '500px'; // Allow growth but cap it
+            }
+        }, transitionDuration * 1000 + 50);
+    } else {
+        // Collapsing: transition to 0
+        header.classList.add('collapsed');
+        // Reset max-height after collapse completes
+        const transitionDuration = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--transition-speed')) || 0.4;
+        setTimeout(() => {
+            if (header.classList.contains('collapsed')) {
+                nav.style.maxHeight = '';
+            }
+        }, transitionDuration * 1000 + 50);
+    }
 }
 
