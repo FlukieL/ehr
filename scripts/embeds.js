@@ -217,10 +217,12 @@ export function createAudioArchiveItem(archiveItem, container) {
     // Add share button
     if (archiveItem.key) {
         const shareButton = document.createElement('button');
+        shareButton.type = 'button';
         shareButton.className = 'archive-item-share';
         shareButton.setAttribute('aria-label', `Share ${archiveItem.title}`);
         shareButton.innerHTML = '🔗';
         shareButton.addEventListener('click', (e) => {
+            e.preventDefault();
             e.stopPropagation();
             shareAudioSet(archiveItem);
         });
@@ -762,10 +764,12 @@ export function loadVideoArchives(videoArchives) {
             
             // Add share button
             const shareButton = document.createElement('button');
+            shareButton.type = 'button';
             shareButton.className = 'video-playlist-item-share';
             shareButton.setAttribute('aria-label', `Share ${item.title || 'video'}`);
             shareButton.innerHTML = '🔗';
             shareButton.addEventListener('click', (e) => {
+                e.preventDefault();
                 e.stopPropagation(); // Prevent triggering the playlist item click
                 shareVideo(item, globalIndex);
             });
@@ -1334,7 +1338,27 @@ export function unloadStream(stream) {
 }
 
 /**
- * Initialises the video playlist toggle button for theatre mode (desktop only)
+ * Checks if the current device is a mobile device
+ * 
+ * @returns {boolean} True if mobile device, false otherwise
+ * @private
+ */
+function isMobileDevice() {
+    // Check window width (matches CSS media query breakpoint)
+    const isMobileWidth = window.innerWidth <= 768;
+    
+    // Check user agent for mobile devices
+    const isMobileUserAgent = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    
+    // Also check for touch capability
+    const hasTouchScreen = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+    
+    // Consider it mobile if width is small OR (user agent suggests mobile AND has touch)
+    return isMobileWidth || (isMobileUserAgent && hasTouchScreen);
+}
+
+/**
+ * Initialises the video playlist toggle button
  * Similar to how chat toggle works in live streams
  * 
  * @private
@@ -1350,9 +1374,15 @@ function initVideoPlaylistToggle() {
 
     // Toggle playlist wrapper collapsed state
     playlistToggle.addEventListener('click', (e) => {
+        e.preventDefault();
         e.stopPropagation();
         toggleVideoPlaylistWrapper();
     });
+    
+    // Initialise playlist wrapper as collapsed by default on mobile devices
+    if (isMobileDevice()) {
+        playlistWrapper.classList.add('collapsed');
+    }
 }
 
 /**

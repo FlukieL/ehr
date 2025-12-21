@@ -61,7 +61,8 @@ export function initStreamControls() {
     // Stream share button
     const streamShareButton = document.getElementById('stream-share-button');
     if (streamShareButton) {
-        streamShareButton.addEventListener('click', () => {
+        streamShareButton.addEventListener('click', (e) => {
+            e.preventDefault();
             shareStream();
         });
     }
