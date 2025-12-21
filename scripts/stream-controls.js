@@ -63,6 +63,7 @@ export function initStreamControls() {
     if (streamShareButton) {
         streamShareButton.addEventListener('click', (e) => {
             e.preventDefault();
+            e.stopPropagation();
             shareStream();
         });
     }
@@ -252,14 +253,17 @@ export function shareStream() {
  * @param {string} text - The text to copy
  */
 function copyToClipboard(text) {
-    if (navigator.clipboard && navigator.clipboard.writeText) {
+    // Check if Clipboard API is available and we're in a secure context
+    if (navigator.clipboard && navigator.clipboard.writeText && window.isSecureContext) {
         navigator.clipboard.writeText(text).then(() => {
             showShareConfirmation();
-        }).catch(() => {
-            // Fallback for older browsers
+        }).catch((err) => {
+            console.warn('Clipboard API failed, using fallback:', err);
+            // Fallback for when Clipboard API fails
             fallbackCopyToClipboard(text);
         });
     } else {
+        // Use fallback for older browsers or non-secure contexts
         fallbackCopyToClipboard(text);
     }
 }
@@ -272,22 +276,52 @@ function copyToClipboard(text) {
 function fallbackCopyToClipboard(text) {
     const textArea = document.createElement('textarea');
     textArea.value = text;
+    // Make textarea visible but off-screen for better compatibility
     textArea.style.position = 'fixed';
-    textArea.style.left = '-999999px';
-    textArea.style.top = '-999999px';
-    document.body.appendChild(textArea);
-    textArea.focus();
-    textArea.select();
+    textArea.style.left = '0';
+    textArea.style.top = '0';
+    textArea.style.width = '2em';
+    textArea.style.height = '2em';
+    textArea.style.padding = '0';
+    textArea.style.border = 'none';
+    textArea.style.outline = 'none';
+    textArea.style.boxShadow = 'none';
+    textArea.style.background = 'transparent';
+    textArea.style.opacity = '0';
+    textArea.style.zIndex = '-1';
+    textArea.setAttribute('readonly', '');
+    textArea.setAttribute('aria-hidden', 'true');
     
-    try {
-        document.execCommand('copy');
-        showShareConfirmation();
-    } catch (err) {
-        console.error('Failed to copy text:', err);
-        alert('Failed to copy link. Please copy manually:\n' + text);
+    document.body.appendChild(textArea);
+    
+    // Select the text - use both methods for maximum compatibility
+    if (navigator.userAgent.match(/ipad|iphone/i)) {
+        // iOS requires a different approach
+        const range = document.createRange();
+        range.selectNodeContents(textArea);
+        const selection = window.getSelection();
+        selection.removeAllRanges();
+        selection.addRange(range);
+        textArea.setSelectionRange(0, textArea.value.length);
+    } else {
+        textArea.select();
+        textArea.setSelectionRange(0, textArea.value.length);
     }
     
-    document.body.removeChild(textArea);
+    try {
+        const successful = document.execCommand('copy');
+        if (successful) {
+            showShareConfirmation();
+        } else {
+            throw new Error('execCommand copy returned false');
+        }
+    } catch (err) {
+        console.error('Failed to copy text:', err);
+        // Show the URL in a prompt as a last resort
+        prompt('Copy this link:', text);
+    } finally {
+        document.body.removeChild(textArea);
+    }
 }
 
 /**
