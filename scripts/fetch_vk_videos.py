@@ -399,7 +399,7 @@ def fetch_vk_playlist(playlist_url):
                 if '_' in video_id:
                     oid, vid = video_id.split('_')
                     video_url = f"https://vk.com/video{video_id}"
-                    embed_url = f"https://vk.com/video_ext.php?oid={oid}&id={vid}"
+                    embed_url = f"https://vk.com/video_ext.php?oid={oid}&id={vid}&lang=en"
                     
                     # Try to find title near the video ID in HTML
                     # Look for title in various patterns
@@ -461,9 +461,9 @@ def fetch_vk_playlist(playlist_url):
                 # Build embed URL
                 if '_' in video_id:
                     oid, vid = video_id.split('_')
-                    embed_url = f"https://vk.com/video_ext.php?oid={oid}&id={vid}"
+                    embed_url = f"https://vk.com/video_ext.php?oid={oid}&id={vid}&lang=en"
                 else:
-                    embed_url = f"https://vk.com/video_ext.php?oid={owner_id}&id={video_id}"
+                    embed_url = f"https://vk.com/video_ext.php?oid={owner_id}&id={video_id}&lang=en"
                 
                 # Check if we already have this video
                 if not any(v.get('video_id') == video_id for v in videos):
@@ -503,11 +503,11 @@ def fetch_vk_playlist(playlist_url):
                 if '_' in video_id:
                     oid, vid = video_id.split('_')
                     # Try video_ext.php format first (more reliable for embedding)
-                    embed_url = f"https://vk.com/video_ext.php?oid={oid}&id={vid}"
+                    embed_url = f"https://vk.com/video_ext.php?oid={oid}&id={vid}&lang=en"
                     # Alternative format: https://vk.com/video-{oid}_{vid}
                     video_url_alt = f"https://vk.com/video{oid}_{vid}"
                 else:
-                    embed_url = f"https://vk.com/video_ext.php?oid={owner_id}&id={video_id}"
+                    embed_url = f"https://vk.com/video_ext.php?oid={owner_id}&id={video_id}&lang=en"
                     video_url_alt = f"https://vk.com/video{owner_id}_{video_id}"
                 
                 # Check if we already have this video
@@ -627,10 +627,10 @@ def extract_video_from_url(video_url):
     # Build URLs
     if '_' in video_id:
         oid, vid = video_id.split('_')
-        embed_url = f"https://vk.com/video_ext.php?oid={oid}&id={vid}"
+        embed_url = f"https://vk.com/video_ext.php?oid={oid}&id={vid}&lang=en"
         vk_url = f"https://vk.com/video{video_id}"
     else:
-        embed_url = f"https://vk.com/video_ext.php?oid={video_id}&id=0"
+        embed_url = f"https://vk.com/video_ext.php?oid={video_id}&id=0&lang=en"
         vk_url = f"https://vk.com/video{video_id}"
     
     return {
@@ -709,9 +709,9 @@ def format_archive_item(video):
     if not embed_url and video_id:
         if '_' in video_id:
             oid, vid = video_id.split('_')
-            embed_url = f"https://vk.com/video_ext.php?oid={oid}&id={vid}"
+            embed_url = f"https://vk.com/video_ext.php?oid={oid}&id={vid}&lang=en"
         else:
-            embed_url = f"https://vk.com/video_ext.php?oid={video_id}&id=0"
+            embed_url = f"https://vk.com/video_ext.php?oid={video_id}&id=0&lang=en"
     
     # Ensure URL is complete
     if url and not url.startswith('http'):
@@ -868,7 +868,7 @@ def fetch_vk_playlist_with_scraper(playlist_url, username=None, password=None):
             
             if video_id:
                 oid, vid = video_id.split('_') if '_' in video_id else (video_id, '0')
-                embed_url = f"https://vk.com/video_ext.php?oid={oid}&id={vid}"
+                embed_url = f"https://vk.com/video_ext.php?oid={oid}&id={vid}&lang=en"
                 
                 # Parse date if available
                 created_time = ""

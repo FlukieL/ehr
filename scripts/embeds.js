@@ -20,6 +20,36 @@ let twitchEmbed = null;
 const mixcloudWidgets = new Map();
 
 /**
+ * Adds the English language parameter to VK embed URLs
+ * 
+ * @param {string} embedUrl - The VK embed URL
+ * @returns {string} The embed URL with lang=en parameter added
+ * 
+ * @example
+ * addVkLanguageParam('https://vk.com/video_ext.php?oid=123&id=456');
+ * // Returns: 'https://vk.com/video_ext.php?oid=123&id=456&lang=en'
+ */
+function addVkLanguageParam(embedUrl) {
+    if (!embedUrl || typeof embedUrl !== 'string') {
+        return embedUrl;
+    }
+    
+    // Check if it's a VK embed URL
+    if (embedUrl.includes('vk.com/video_ext.php') || embedUrl.includes('vkvideo.ru/video_ext.php')) {
+        // Check if lang parameter already exists
+        if (embedUrl.includes('lang=')) {
+            return embedUrl;
+        }
+        
+        // Add lang=en parameter
+        const separator = embedUrl.includes('?') ? '&' : '?';
+        return `${embedUrl}${separator}lang=en`;
+    }
+    
+    return embedUrl;
+}
+
+/**
  * Initialises the Twitch embed using the native Twitch.Embed API
  * 
  * @param {string} channel - The Twitch channel name
@@ -383,7 +413,8 @@ export function createVideoArchiveItem(archiveItem, container) {
 
     // Initialise the appropriate embed based on platform
     if (archiveItem.platform === 'vk') {
-        createIframeEmbed(archiveItem.embedUrl, uniqueId, {
+        const vkEmbedUrl = addVkLanguageParam(archiveItem.embedUrl);
+        createIframeEmbed(vkEmbedUrl, uniqueId, {
             height: '360',
             title: archiveItem.title
         });
@@ -871,7 +902,8 @@ function loadVideoInPlayer(videoItem, index, allVideos, playlistContainer) {
     // Create iframe for VK video
     if (videoItem.platform === 'vk') {
         const iframe = document.createElement('iframe');
-        iframe.src = videoItem.embedUrl || videoItem.url;
+        const embedUrl = videoItem.embedUrl || videoItem.url;
+        iframe.src = addVkLanguageParam(embedUrl);
         iframe.width = '100%';
         iframe.height = '100%';
         iframe.frameBorder = '0';
