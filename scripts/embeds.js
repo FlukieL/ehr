@@ -949,22 +949,49 @@ function copyToClipboard(text) {
 function fallbackCopyToClipboard(text) {
     const textArea = document.createElement('textarea');
     textArea.value = text;
+    // Make textarea visible but off-screen for better compatibility
     textArea.style.position = 'fixed';
-    textArea.style.left = '-999999px';
-    textArea.style.top = '-999999px';
+    textArea.style.left = '-9999px';
+    textArea.style.top = '0';
+    textArea.style.width = '2em';
+    textArea.style.height = '2em';
+    textArea.style.padding = '0';
+    textArea.style.border = 'none';
+    textArea.style.outline = 'none';
+    textArea.style.boxShadow = 'none';
+    textArea.style.background = 'transparent';
+    textArea.style.opacity = '0';
+    textArea.style.pointerEvents = 'none';
+    textArea.setAttribute('readonly', '');
+    textArea.setAttribute('aria-hidden', 'true');
+    
     document.body.appendChild(textArea);
+    
+    // Focus and select the text
     textArea.focus();
     textArea.select();
+    textArea.setSelectionRange(0, textArea.value.length);
     
     try {
-        document.execCommand('copy');
-        showShareConfirmation();
+        const successful = document.execCommand('copy');
+        if (successful) {
+            showShareConfirmation();
+        } else {
+            throw new Error('execCommand copy returned false');
+        }
     } catch (err) {
         console.error('Failed to copy text:', err);
-        alert('Failed to copy link. Please copy manually:\n' + text);
+        // Show the URL in a prompt as a last resort
+        const userCopied = prompt('Copy this link:', text);
+        if (userCopied) {
+            showShareConfirmation();
+        }
+    } finally {
+        // Clean up - remove the textarea
+        if (document.body.contains(textArea)) {
+            document.body.removeChild(textArea);
+        }
     }
-    
-    document.body.removeChild(textArea);
 }
 
 /**

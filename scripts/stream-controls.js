@@ -58,14 +58,48 @@ export function initStreamControls() {
         // On desktop, chat starts visible alongside the player
     }
 
-    // Stream share button
+    // Stream share button - use multiple binding methods for Edge compatibility
     const streamShareButton = document.getElementById('stream-share-button');
     if (streamShareButton) {
-        streamShareButton.addEventListener('click', (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            shareStream();
-        });
+        // Ensure button is clickable
+        streamShareButton.style.pointerEvents = 'auto';
+        streamShareButton.style.cursor = 'pointer';
+        streamShareButton.style.userSelect = 'none';
+        
+        // Handler function
+        const handleShareClick = (e) => {
+            try {
+                if (e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }
+                shareStream();
+            } catch (error) {
+                console.error('Error in share button click handler:', error);
+                // Fallback: try to copy URL directly
+                try {
+                    const currentStream = getActiveStream();
+                    const url = new URL(window.location.href);
+                    url.searchParams.delete('stream');
+                    url.searchParams.set('stream', currentStream);
+                    url.hash = '#live-streams';
+                    const shareUrl = url.toString();
+                    copyToClipboard(shareUrl);
+                } catch (fallbackError) {
+                    console.error('Fallback share also failed:', fallbackError);
+                    alert('Unable to share. Please copy the URL manually: ' + window.location.href);
+                }
+            }
+        };
+        
+        // Use addEventListener (standard method)
+        streamShareButton.addEventListener('click', handleShareClick, false);
+        
+        // Also set onclick as fallback for Edge compatibility
+        // (Edge sometimes has issues with addEventListener on dynamically created elements)
+        streamShareButton.onclick = handleShareClick;
+    } else {
+        console.warn('Stream share button not found');
     }
 }
 
@@ -214,36 +248,54 @@ export function isChatWrapperExpanded() {
  * shareStream();
  */
 export function shareStream() {
-    const currentStream = getActiveStream();
-    const url = new URL(window.location.href);
-    
-    // Remove any existing stream parameter and add the current one
-    url.searchParams.delete('stream');
-    url.searchParams.set('stream', currentStream);
-    
-    // Ensure we're on the live streams section
-    url.hash = '#live-streams';
-    
-    const shareUrl = url.toString();
-    const streamName = currentStream === 'kick' ? 'Kick' : 'Twitch';
-    const shareTitle = `Electric Heater Room - ${streamName} Stream`;
-    const shareText = `Watch the live stream on Electric Heater Room`;
+    try {
+        const currentStream = getActiveStream();
+        const url = new URL(window.location.href);
+        
+        // Remove any existing stream parameter and add the current one
+        url.searchParams.delete('stream');
+        url.searchParams.set('stream', currentStream);
+        
+        // Ensure we're on the live streams section
+        url.hash = '#live-streams';
+        
+        const shareUrl = url.toString();
+        const streamName = currentStream === 'kick' ? 'Kick' : 'Twitch';
+        const shareTitle = `Electric Heater Room - ${streamName} Stream`;
+        const shareText = `Watch the live stream on Electric Heater Room`;
 
-    // Try Web Share API first (mobile-friendly)
-    if (navigator.share) {
-        navigator.share({
-            title: shareTitle,
-            text: shareText,
-            url: shareUrl
-        }).catch((error) => {
-            // User cancelled or error occurred, fall back to clipboard
-            if (error.name !== 'AbortError') {
-                copyToClipboard(shareUrl);
-            }
-        });
-    } else {
-        // Fall back to clipboard
-        copyToClipboard(shareUrl);
+        // Try Web Share API first (mobile-friendly)
+        if (navigator.share) {
+            navigator.share({
+                title: shareTitle,
+                text: shareText,
+                url: shareUrl
+            }).catch((error) => {
+                // User cancelled or error occurred, fall back to clipboard
+                if (error.name !== 'AbortError') {
+                    console.log('Web Share API failed, falling back to clipboard:', error);
+                    copyToClipboard(shareUrl);
+                }
+            });
+        } else {
+            // Fall back to clipboard
+            copyToClipboard(shareUrl);
+        }
+    } catch (error) {
+        console.error('Error in shareStream function:', error);
+        // Last resort: show prompt
+        try {
+            const currentStream = getActiveStream();
+            const url = new URL(window.location.href);
+            url.searchParams.delete('stream');
+            url.searchParams.set('stream', currentStream);
+            url.hash = '#live-streams';
+            const shareUrl = url.toString();
+            copyToClipboard(shareUrl);
+        } catch (fallbackError) {
+            console.error('All share methods failed:', fallbackError);
+            alert('Unable to share. Please copy the URL manually: ' + window.location.href);
+        }
     }
 }
 
@@ -253,17 +305,22 @@ export function shareStream() {
  * @param {string} text - The text to copy
  */
 function copyToClipboard(text) {
-    // Check if Clipboard API is available and we're in a secure context
-    if (navigator.clipboard && navigator.clipboard.writeText && window.isSecureContext) {
-        navigator.clipboard.writeText(text).then(() => {
-            showShareConfirmation();
-        }).catch((err) => {
-            console.warn('Clipboard API failed, using fallback:', err);
-            // Fallback for when Clipboard API fails
+    try {
+        // Check if Clipboard API is available
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(text).then(() => {
+                showShareConfirmation();
+            }).catch((err) => {
+                console.warn('Clipboard API failed, using fallback:', err);
+                // Fallback for when Clipboard API fails
+                fallbackCopyToClipboard(text);
+            });
+        } else {
+            // Use fallback for older browsers or when Clipboard API is not available
             fallbackCopyToClipboard(text);
-        });
-    } else {
-        // Use fallback for older browsers or non-secure contexts
+        }
+    } catch (error) {
+        console.error('Error in copyToClipboard:', error);
         fallbackCopyToClipboard(text);
     }
 }
@@ -274,53 +331,80 @@ function copyToClipboard(text) {
  * @param {string} text - The text to copy
  */
 function fallbackCopyToClipboard(text) {
-    const textArea = document.createElement('textarea');
-    textArea.value = text;
-    // Make textarea visible but off-screen for better compatibility
-    textArea.style.position = 'fixed';
-    textArea.style.left = '0';
-    textArea.style.top = '0';
-    textArea.style.width = '2em';
-    textArea.style.height = '2em';
-    textArea.style.padding = '0';
-    textArea.style.border = 'none';
-    textArea.style.outline = 'none';
-    textArea.style.boxShadow = 'none';
-    textArea.style.background = 'transparent';
-    textArea.style.opacity = '0';
-    textArea.style.zIndex = '-1';
-    textArea.setAttribute('readonly', '');
-    textArea.setAttribute('aria-hidden', 'true');
-    
-    document.body.appendChild(textArea);
-    
-    // Select the text - use both methods for maximum compatibility
-    if (navigator.userAgent.match(/ipad|iphone/i)) {
-        // iOS requires a different approach
-        const range = document.createRange();
-        range.selectNodeContents(textArea);
-        const selection = window.getSelection();
-        selection.removeAllRanges();
-        selection.addRange(range);
-        textArea.setSelectionRange(0, textArea.value.length);
-    } else {
-        textArea.select();
-        textArea.setSelectionRange(0, textArea.value.length);
-    }
-    
     try {
-        const successful = document.execCommand('copy');
+        const textArea = document.createElement('textarea');
+        textArea.value = text;
+        // Make textarea visible but off-screen for better compatibility
+        textArea.style.position = 'fixed';
+        textArea.style.left = '-9999px';
+        textArea.style.top = '0';
+        textArea.style.width = '2em';
+        textArea.style.height = '2em';
+        textArea.style.padding = '0';
+        textArea.style.border = 'none';
+        textArea.style.outline = 'none';
+        textArea.style.boxShadow = 'none';
+        textArea.style.background = 'transparent';
+        textArea.style.opacity = '0';
+        textArea.style.pointerEvents = 'none';
+        textArea.setAttribute('readonly', '');
+        textArea.setAttribute('aria-hidden', 'true');
+        
+        document.body.appendChild(textArea);
+        
+        // Focus and select the text - use both methods for maximum compatibility
+        // For Edge, we need to ensure the element is actually focusable
+        textArea.focus();
+        textArea.select();
+        
+        // Use setSelectionRange for better Edge compatibility
+        if (textArea.setSelectionRange) {
+            textArea.setSelectionRange(0, textArea.value.length);
+        }
+        
+        // Try execCommand
+        let successful = false;
+        try {
+            successful = document.execCommand('copy');
+        } catch (execError) {
+            console.warn('execCommand failed:', execError);
+        }
+        
+        // Clean up immediately
+        if (document.body.contains(textArea)) {
+            document.body.removeChild(textArea);
+        }
+        
         if (successful) {
             showShareConfirmation();
         } else {
-            throw new Error('execCommand copy returned false');
+            // If execCommand failed, try using the Clipboard API again as a last attempt
+            // (sometimes it works on second try in Edge)
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(text).then(() => {
+                    showShareConfirmation();
+                }).catch(() => {
+                    // Final fallback: show prompt
+                    const userCopied = prompt('Please copy this link:', text);
+                    if (userCopied !== null) {
+                        showShareConfirmation();
+                    }
+                });
+            } else {
+                // Final fallback: show prompt
+                const userCopied = prompt('Please copy this link:', text);
+                if (userCopied !== null) {
+                    showShareConfirmation();
+                }
+            }
         }
     } catch (err) {
-        console.error('Failed to copy text:', err);
-        // Show the URL in a prompt as a last resort
-        prompt('Copy this link:', text);
-    } finally {
-        document.body.removeChild(textArea);
+        console.error('Fallback copy method failed:', err);
+        // Last resort: show prompt
+        const userCopied = prompt('Please copy this link:', text);
+        if (userCopied !== null) {
+            showShareConfirmation();
+        }
     }
 }
 

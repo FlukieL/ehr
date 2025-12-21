@@ -610,6 +610,12 @@ body {
     min-width: 40px;
     height: 40px;
     flex-shrink: 0;
+    position: relative;
+    z-index: 10;
+    pointer-events: auto;
+    user-select: none;
+    -webkit-user-select: none;
+    -ms-user-select: none;
 }
 
 .stream-tab-share:hover {
