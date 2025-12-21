@@ -270,26 +270,34 @@ function toggleHeaderCollapse() {
     const isCurrentlyCollapsed = header.classList.contains('collapsed');
     
     if (isCurrentlyCollapsed) {
-        // Expanding: calculate actual height and set it to prevent blank space
+        // Expanding: clear any inline max-height first to let CSS handle the transition
+        nav.style.maxHeight = '';
+        // Force reflow to ensure the style is cleared and transitions can start together
+        void nav.offsetHeight;
+        void header.offsetHeight;
+        // Remove collapsed class - CSS will handle the transition smoothly
+        // This triggers both nav max-height and main-content margin-top transitions simultaneously
         header.classList.remove('collapsed');
-        // Get natural height by temporarily removing max-height constraint
-        const currentMaxHeight = nav.style.maxHeight || getComputedStyle(nav).maxHeight;
-        nav.style.maxHeight = 'none';
-        const naturalHeight = nav.scrollHeight;
-        nav.style.maxHeight = currentMaxHeight;
-        // Set to natural height to prevent extra space
-        nav.style.maxHeight = `${naturalHeight}px`;
-        // After transition completes, allow it to grow if needed (but cap at 500px)
+        // Force another reflow to ensure transitions start
+        requestAnimationFrame(() => {
+            void nav.offsetHeight;
+        });
+        // After transition completes, clean up any inline styles
         const transitionDuration = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--transition-speed')) || 0.4;
         setTimeout(() => {
             if (!header.classList.contains('collapsed')) {
-                nav.style.maxHeight = '500px'; // Allow growth but cap it
+                // Ensure no inline max-height interferes with natural height
+                nav.style.maxHeight = '';
             }
         }, transitionDuration * 1000 + 50);
     } else {
-        // Collapsing: transition to 0
+        // Collapsing: clear any inline max-height first to allow CSS transition to work smoothly
+        nav.style.maxHeight = '';
+        // Force reflow to ensure the style is cleared before adding collapsed class
+        void nav.offsetHeight;
+        // Now add collapsed class - CSS will handle the transition smoothly
         header.classList.add('collapsed');
-        // Reset max-height after collapse completes
+        // Reset max-height after collapse completes to clean up
         const transitionDuration = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--transition-speed')) || 0.4;
         setTimeout(() => {
             if (header.classList.contains('collapsed')) {

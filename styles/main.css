@@ -995,6 +995,7 @@ body {
         padding: 1rem;
         gap: 1rem;
         height: calc(100dvh - 200px - env(safe-area-inset-top, 0px));
+        transition: height var(--transition-speed) var(--transition-easing);
     }
 
     .header.collapsed ~ .main-content .player-layout {
@@ -1566,6 +1567,8 @@ body {
         padding-right: env(safe-area-inset-right, 0px);
         transition: padding-bottom var(--transition-speed) var(--transition-easing);
         contain: layout style;
+        /* Ensure smooth height transition */
+        will-change: padding-bottom;
     }
 
     .header-content {
@@ -1593,8 +1596,10 @@ body {
         overflow: hidden;
         transition: max-height var(--transition-speed) var(--transition-easing),
                     opacity var(--transition-speed) var(--transition-easing),
-                    margin-top var(--transition-speed) var(--transition-easing);
+                    margin-top var(--transition-speed) var(--transition-easing),
+                    gap var(--transition-speed) var(--transition-easing);
         contain: layout;
+        will-change: max-height, opacity;
     }
 
     .header.collapsed .nav {
@@ -1602,6 +1607,7 @@ body {
         opacity: 0;
         margin-top: 0;
         overflow: hidden;
+        gap: 0;
     }
 
     .header.collapsed .header-content {
@@ -1610,6 +1616,13 @@ body {
 
     .header.collapsed {
         padding-bottom: 0.5rem;
+    }
+
+    /* Ensure header and main-content transitions are perfectly synchronized */
+    .header,
+    .main-content {
+        transition-timing-function: var(--transition-easing);
+        transition-duration: var(--transition-speed);
     }
 
     .nav-button {
@@ -1642,6 +1655,7 @@ body {
     .main-content {
         margin-top: calc(200px + env(safe-area-inset-top, 0px));
         transition: margin-top var(--transition-speed) var(--transition-easing);
+        will-change: margin-top;
     }
 
     .header.collapsed ~ .main-content {
@@ -1713,7 +1727,8 @@ body {
             z-index: 100;
             min-height: 0;
             display: none;
-            transition: height var(--transition-speed) var(--transition-easing);
+            transition: height var(--transition-speed) var(--transition-easing),
+                        top var(--transition-speed) var(--transition-easing);
             background: var(--bg-primary);
         }
 
