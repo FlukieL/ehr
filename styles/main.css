@@ -72,6 +72,13 @@ body {
     object-fit: contain;
     cursor: pointer;
     transition: transform 0.3s ease;
+    display: block;
+}
+
+.logo img {
+    height: 100%;
+    width: auto;
+    object-fit: contain;
 }
 
 .logo:hover {
@@ -1586,6 +1593,11 @@ body {
 
     .logo {
         height: 40px;
+    }
+    
+    .logo img {
+        height: 100%;
+        width: auto;
     }
 
     .nav {
