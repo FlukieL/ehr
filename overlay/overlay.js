@@ -185,12 +185,22 @@ function playRandomAnimation() {
     
     // Remove all animation classes
     logoImg.classList.remove(...animations);
+    logoImg.classList.remove('logo-animate-greyscale-pulse');
     
     // Force reflow
     void logoImg.offsetWidth;
     
-    // Get random animation
-    const randomAnim = animations[Math.floor(Math.random() * animations.length)];
+    // Get random animation - special handling for heater image
+    let randomAnim;
+    if (currentLogo.src.includes('EHRHeater.png')) {
+        // Only glow or greyscale-pulse for heater
+        const heaterAnimations = ['logo-animate-glow', 'logo-animate-greyscale-pulse'];
+        randomAnim = heaterAnimations[Math.floor(Math.random() * heaterAnimations.length)];
+    } else {
+        // Regular animations for other logos
+        randomAnim = animations[Math.floor(Math.random() * animations.length)];
+    }
+    
     logoImg.classList.add(randomAnim);
     
     // Calculate animation duration based on class

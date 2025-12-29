@@ -156,6 +156,17 @@ body {
     }
 }
 
+@keyframes logoGreyscalePulse {
+    0%, 100% {
+        filter: grayscale(100%) !important;
+        opacity: 0.7 !important;
+    }
+    50% {
+        filter: grayscale(0%) !important;
+        opacity: 1 !important;
+    }
+}
+
 @keyframes logoZoom {
     0%, 100% {
         transform: scale(1);
@@ -354,6 +365,10 @@ body {
 
 .logo-animate-glow {
     animation: logoGlow 1.5s ease-in-out;
+}
+
+.logo-animate-greyscale-pulse {
+    animation: logoGreyscalePulse 2s ease-in-out;
 }
 
 .logo-animate-zoom {
