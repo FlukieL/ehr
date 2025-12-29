@@ -37,16 +37,17 @@
             bottom: 0;
             left: 0;
             width: 1920px;
-            height: 100px;
+            height: 160px;
             background: rgba(0, 0, 0, 0.85);
             -webkit-backdrop-filter: blur(10px);
             backdrop-filter: blur(10px);
             border-top: 2px solid var(--accent-orange);
             box-shadow: 0 -4px 20px rgba(255, 107, 53, 0.2);
             display: flex;
-            align-items: center;
+            align-items: flex-end;
             justify-content: space-between;
             padding: 0 40px;
+            padding-bottom: 0;
             z-index: 10000;
         }
 
@@ -55,8 +56,8 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            height: 100%;
-            width: 160px;
+            height: 160px;
+            width: 400px;
             position: relative;
             flex-shrink: 0;
         }
@@ -71,8 +72,8 @@
         }
 
         .logo-img {
-            max-height: 100%;
-            max-width: 160px;
+            max-height: 160px;
+            max-width: 400px;
             object-fit: contain;
             transition: opacity var(--transition-speed) var(--transition-easing);
         }
@@ -408,6 +409,7 @@
             justify-content: center;
             overflow: hidden;
             margin-left: 40px;
+            margin-bottom: 0;
             position: relative;
             opacity: 0;
             transform: scaleX(0);
