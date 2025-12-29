@@ -1,19 +1,15 @@
 {
   "messages": [
     {
-      "text": "Visit ehr.lukeharper.co.uk for live streams and archives",
+      "text": "Visit ehr.lukeharper.co.uk for future live streams and old set replays",
       "type": "website"
     },
     {
-      "text": "Follow us for the latest updates and event announcements",
+      "text": "Follow us on Instagram for the latest updates announcements",
       "type": "promo"
     },
     {
-      "text": "Check out our audio and video archives on the website",
-      "type": "promo"
-    },
-    {
-      "text": "Join us live for DJ sets and special events",
+      "text": "Check out our audio and video sets on the website",
       "type": "promo"
     }
   ]
