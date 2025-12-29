@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EHR OBS Overlay</title>
+    <style>
+        /* CSS Variables matching website theme */
+        :root {
+            --bg-primary: #000000;
+            --text-primary: #FFFFFF;
+            --accent-orange: #FF6B35;
+            --accent-orange-light: #FF8C5A;
+            --accent-orange-dark: #E55A2B;
+            --transition-speed: 0.4s;
+            --transition-easing: cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: transparent;
+            overflow: hidden;
+            width: 1920px;
+            height: 1080px;
+            position: relative;
+        }
+
+        /* Overlay Container */
+        .overlay-container {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 1920px;
+            height: 100px;
+            background: rgba(0, 0, 0, 0.85);
+            -webkit-backdrop-filter: blur(10px);
+            backdrop-filter: blur(10px);
+            border-top: 2px solid var(--accent-orange);
+            box-shadow: 0 -4px 20px rgba(255, 107, 53, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 40px;
+            z-index: 10000;
+        }
+
+        /* Logo Section */
+        .logo-section {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 80px;
+            width: 200px;
+            position: relative;
+        }
+
+        .logo-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .logo-img {
+            max-height: 80px;
+            max-width: 180px;
+            object-fit: contain;
+            transition: opacity var(--transition-speed) var(--transition-easing);
+        }
+
+        .logo-img.fade-out {
+            opacity: 0;
+        }
+
+        .logo-img.fade-in {
+            opacity: 1;
+        }
+
+        /* Circle Spin Animation */
+        @keyframes spin {
+            from {
+                transform: rotate(0deg);
+            }
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .logo-spin {
+            animation: spin 3s linear infinite;
+        }
+
+        /* Logo Animations from website */
+        @keyframes logoPulse {
+            0%, 100% {
+                transform: scale(1);
+                filter: drop-shadow(0 0 10px rgba(255, 107, 53, 0.5));
+            }
+            50% {
+                transform: scale(1.1);
+                filter: drop-shadow(0 0 20px rgba(255, 107, 53, 1));
+            }
+        }
+
+        @keyframes logoBounce {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            25% {
+                transform: translateY(-10px);
+            }
+            50% {
+                transform: translateY(0);
+            }
+            75% {
+                transform: translateY(-5px);
+            }
+        }
+
+        @keyframes logoShake {
+            0%, 100% {
+                transform: translateX(0);
+            }
+            10%, 30%, 50%, 70%, 90% {
+                transform: translateX(-5px);
+            }
+            20%, 40%, 60%, 80% {
+                transform: translateX(5px);
+            }
+        }
+
+        @keyframes logoGlow {
+            0%, 100% {
+                filter: drop-shadow(0 0 5px rgba(255, 107, 53, 0.5));
+            }
+            50% {
+                filter: drop-shadow(0 0 25px rgba(255, 107, 53, 1)) drop-shadow(0 0 40px rgba(255, 107, 53, 0.8));
+            }
+        }
+
+        @keyframes logoZoom {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.2);
+            }
+        }
+
+        @keyframes logoWobble {
+            0%, 100% {
+                transform: rotate(0deg);
+            }
+            25% {
+                transform: rotate(-5deg);
+            }
+            75% {
+                transform: rotate(5deg);
+            }
+        }
+
+        @keyframes logoSlide {
+            0% {
+                transform: translateX(-20px);
+                opacity: 0.8;
+            }
+            50% {
+                transform: translateX(20px);
+                opacity: 1;
+            }
+            100% {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes logoFade {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.5;
+            }
+        }
+
+        @keyframes logoFlip {
+            0% {
+                transform: perspective(400px) rotateX(0) scale(1);
+            }
+            50% {
+                transform: perspective(400px) rotateX(180deg) scale(1.1);
+            }
+            100% {
+                transform: perspective(400px) rotateX(0) scale(1);
+            }
+        }
+
+        @keyframes logoSquash {
+            0%, 100% {
+                transform: scale(1, 1);
+            }
+            25% {
+                transform: scale(1.2, 0.8);
+            }
+            50% {
+                transform: scale(0.9, 1.1);
+            }
+            75% {
+                transform: scale(1.1, 0.9);
+            }
+        }
+
+        @keyframes logoElastic {
+            0%, 100% {
+                transform: scale(1);
+            }
+            25% {
+                transform: scale(1.3);
+            }
+            50% {
+                transform: scale(0.8);
+            }
+            75% {
+                transform: scale(1.15);
+            }
+        }
+
+        @keyframes logoWave {
+            0%, 100% {
+                transform: translateY(0) scaleY(1);
+            }
+            25% {
+                transform: translateY(-10px) scaleY(1.1);
+            }
+            50% {
+                transform: translateY(0) scaleY(0.9);
+            }
+            75% {
+                transform: translateY(10px) scaleY(1.1);
+            }
+        }
+
+        @keyframes logoBlur {
+            0%, 100% {
+                filter: blur(0px) brightness(1);
+            }
+            50% {
+                filter: blur(3px) brightness(1.3);
+            }
+        }
+
+        @keyframes logoJiggle {
+            0%, 100% {
+                transform: translate(0, 0);
+            }
+            10% {
+                transform: translate(-3px, -3px);
+            }
+            20% {
+                transform: translate(3px, -3px);
+            }
+            30% {
+                transform: translate(-3px, 3px);
+            }
+            40% {
+                transform: translate(3px, 3px);
+            }
+            50% {
+                transform: translate(-2px, -2px);
+            }
+            60% {
+                transform: translate(2px, -2px);
+            }
+            70% {
+                transform: translate(-2px, 2px);
+            }
+            80% {
+                transform: translate(2px, 2px);
+            }
+            90% {
+                transform: translate(-1px, -1px);
+            }
+        }
+
+        @keyframes logoSqueeze {
+            0%, 100% {
+                transform: scaleX(1) scaleY(1);
+            }
+            25% {
+                transform: scaleX(0.7) scaleY(1.3);
+            }
+            50% {
+                transform: scaleX(1.3) scaleY(0.7);
+            }
+            75% {
+                transform: scaleX(0.9) scaleY(1.1);
+            }
+        }
+
+        @keyframes logoFloat {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-15px);
+            }
+        }
+
+        @keyframes logoStretch {
+            0%, 100% {
+                transform: scale(1, 1);
+            }
+            25% {
+                transform: scale(1.3, 0.8);
+            }
+            50% {
+                transform: scale(0.8, 1.3);
+            }
+            75% {
+                transform: scale(1.2, 0.9);
+            }
+        }
+
+        /* Animation classes */
+        .logo-animate-pulse {
+            animation: logoPulse 1s ease-in-out;
+        }
+
+        .logo-animate-bounce {
+            animation: logoBounce 0.8s ease-in-out;
+        }
+
+        .logo-animate-shake {
+            animation: logoShake 0.5s ease-in-out;
+        }
+
+        .logo-animate-glow {
+            animation: logoGlow 1.5s ease-in-out;
+        }
+
+        .logo-animate-zoom {
+            animation: logoZoom 0.6s ease-in-out;
+        }
+
+        .logo-animate-wobble {
+            animation: logoWobble 0.8s ease-in-out;
+        }
+
+        .logo-animate-slide {
+            animation: logoSlide 0.8s ease-in-out;
+        }
+
+        .logo-animate-fade {
+            animation: logoFade 1s ease-in-out;
+        }
+
+        .logo-animate-flip {
+            animation: logoFlip 1s ease-in-out;
+        }
+
+        .logo-animate-squash {
+            animation: logoSquash 0.8s ease-in-out;
+        }
+
+        .logo-animate-elastic {
+            animation: logoElastic 0.9s ease-in-out;
+        }
+
+        .logo-animate-wave {
+            animation: logoWave 1s ease-in-out;
+        }
+
+        .logo-animate-blur {
+            animation: logoBlur 1.2s ease-in-out;
+        }
+
+        .logo-animate-jiggle {
+            animation: logoJiggle 0.6s ease-in-out;
+        }
+
+        .logo-animate-squeeze {
+            animation: logoSqueeze 0.7s ease-in-out;
+        }
+
+        .logo-animate-float {
+            animation: logoFloat 1.5s ease-in-out;
+        }
+
+        .logo-animate-stretch {
+            animation: logoStretch 0.8s ease-in-out;
+        }
+
+        /* News Ticker Section */
+        .ticker-section {
+            flex: 1;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            overflow: hidden;
+            margin-left: 40px;
+            position: relative;
+        }
+
+        .ticker-wrapper {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        .ticker-content {
+            position: absolute;
+            white-space: nowrap;
+            display: inline-block;
+            color: var(--text-primary);
+            font-size: 24px;
+            font-weight: 500;
+            line-height: 100px;
+            will-change: transform;
+        }
+
+        .ticker-item {
+            display: inline-block;
+            margin-right: 60px;
+            color: var(--text-primary);
+        }
+
+        .ticker-separator {
+            color: var(--accent-orange);
+            margin: 0 20px;
+            font-weight: bold;
+        }
+
+        .ticker-link {
+            color: var(--accent-orange);
+            text-decoration: none;
+        }
+
+        .ticker-link:hover {
+            color: var(--accent-orange-light);
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="overlay-container">
+        <!-- Logo Section -->
+        <div class="logo-section">
+            <div class="logo-container">
+                <img id="logo-img" class="logo-img" src="../assets/EHRLogoRemoveBG.png" alt="EHR Logo">
+            </div>
+        </div>
+
+        <!-- News Ticker Section -->
+        <div class="ticker-section">
+            <div class="ticker-wrapper">
+                <div id="ticker-content" class="ticker-content"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Logo configuration
+        const logos = [
+            { src: '../assets/EHRLogoRemoveBG.png', isCircle: false },
+            { src: '../assets/EHRCircle.png', isCircle: true },
+            { src: '../EHRHeater.png', isCircle: false }
+        ];
+
+        // Animation classes (excluding spin for non-circle logos)
+        const animations = [
+            'logo-animate-pulse',
+            'logo-animate-bounce',
+            'logo-animate-shake',
+            'logo-animate-glow',
+            'logo-animate-zoom',
+            'logo-animate-wobble',
+            'logo-animate-slide',
+            'logo-animate-fade',
+            'logo-animate-flip',
+            'logo-animate-squash',
+            'logo-animate-elastic',
+            'logo-animate-wave',
+            'logo-animate-blur',
+            'logo-animate-jiggle',
+            'logo-animate-squeeze',
+            'logo-animate-float',
+            'logo-animate-stretch'
+        ];
+
+        let currentLogoIndex = 0;
+        let logoRotationInterval = null;
+        let animationInterval = null;
+        let tickerMessages = [];
+        let tickerAnimationId = null;
+        let tickerPosition = 0;
+
+        // Logo rotation (180 seconds)
+        function rotateLogo() {
+            const logoImg = document.getElementById('logo-img');
+            const currentLogo = logos[currentLogoIndex];
+            
+            // Fade out
+            logoImg.classList.add('fade-out');
+            
+            setTimeout(() => {
+                // Update logo source
+                currentLogoIndex = (currentLogoIndex + 1) % logos.length;
+                const nextLogo = logos[currentLogoIndex];
+                logoImg.src = nextLogo.src;
+                
+                // Remove all animation classes
+                logoImg.classList.remove(...animations);
+                logoImg.classList.remove('logo-spin');
+                
+                // Apply circle spin if needed
+                if (nextLogo.isCircle) {
+                    logoImg.classList.add('logo-spin');
+                }
+                
+                // Fade in
+                logoImg.classList.remove('fade-out');
+                logoImg.classList.add('fade-in');
+                
+                // Trigger initial animation if not circle
+                if (!nextLogo.isCircle) {
+                    setTimeout(() => {
+                        playRandomAnimation();
+                    }, 500);
+                }
+            }, 400);
+        }
+
+        // Random animation (20 seconds)
+        function playRandomAnimation() {
+            const logoImg = document.getElementById('logo-img');
+            const currentLogo = logos[currentLogoIndex];
+            
+            // Don't animate if it's the circle (it's already spinning)
+            if (currentLogo.isCircle) {
+                return;
+            }
+            
+            // Remove all animation classes
+            logoImg.classList.remove(...animations);
+            
+            // Force reflow
+            void logoImg.offsetWidth;
+            
+            // Get random animation
+            const randomAnim = animations[Math.floor(Math.random() * animations.length)];
+            logoImg.classList.add(randomAnim);
+            
+            // Remove after animation completes
+            setTimeout(() => {
+                logoImg.classList.remove(randomAnim);
+            }, 2000);
+        }
+
+        // Load and process ticker data
+        async function loadTickerData() {
+            try {
+                // Load events
+                const eventsResponse = await fetch('../data/events.json');
+                const eventsData = await eventsResponse.json();
+                
+                // Load custom ticker messages
+                const tickerResponse = await fetch('ticker.json');
+                const tickerData = await tickerResponse.json();
+                
+                // Process events
+                const eventMessages = eventsData.events.map(event => {
+                    const eventDate = new Date(event.date);
+                    const formattedDate = eventDate.toLocaleDateString('en-GB', { 
+                        day: 'numeric', 
+                        month: 'short',
+                        year: 'numeric'
+                    });
+                    return {
+                        text: `Upcoming: ${event.title} - ${formattedDate} at ${event.time}`,
+                        type: 'event'
+                    };
+                });
+                
+                // Add website link message
+                const websiteMessage = {
+                    text: 'Visit ehr.lukeharper.co.uk',
+                    type: 'website',
+                    link: 'https://ehr.lukeharper.co.uk'
+                };
+                
+                // Combine all messages
+                tickerMessages = [
+                    websiteMessage,
+                    ...eventMessages,
+                    ...tickerData.messages
+                ];
+                
+                // Shuffle messages
+                shuffleArray(tickerMessages);
+                
+                // Start ticker
+                startTicker();
+            } catch (error) {
+                console.error('Error loading ticker data:', error);
+                // Fallback message
+                tickerMessages = [{
+                    text: 'Visit ehr.lukeharper.co.uk',
+                    type: 'website',
+                    link: 'https://ehr.lukeharper.co.uk'
+                }];
+                startTicker();
+            }
+        }
+
+        // Shuffle array
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+
+        // Start ticker animation
+        function startTicker() {
+            const tickerContent = document.getElementById('ticker-content');
+            
+            // Create ticker HTML
+            let tickerHTML = '';
+            // Duplicate messages for seamless loop
+            const duplicatedMessages = [...tickerMessages, ...tickerMessages];
+            
+            duplicatedMessages.forEach((message, index) => {
+                let messageHTML = '';
+                
+                if (message.link) {
+                    messageHTML = `<a href="${message.link}" target="_blank" class="ticker-link">${message.text}</a>`;
+                } else {
+                    messageHTML = message.text;
+                }
+                
+                tickerHTML += `<span class="ticker-item">${messageHTML}</span>`;
+                
+                if (index < duplicatedMessages.length - 1) {
+                    tickerHTML += '<span class="ticker-separator">•</span>';
+                }
+            });
+            
+            tickerContent.innerHTML = tickerHTML;
+            
+            // Calculate total width
+            const totalWidth = tickerContent.offsetWidth;
+            const wrapperWidth = tickerContent.parentElement.offsetWidth;
+            
+            // Reset position
+            tickerPosition = wrapperWidth;
+            
+            // Animate ticker
+            function animateTicker() {
+                tickerPosition -= 1;
+                
+                // Reset when scrolled past
+                if (tickerPosition <= -totalWidth / 2) {
+                    tickerPosition = wrapperWidth;
+                }
+                
+                tickerContent.style.transform = `translateX(${tickerPosition}px)`;
+                tickerAnimationId = requestAnimationFrame(animateTicker);
+            }
+            
+            animateTicker();
+        }
+
+        // Initialise overlay
+        function init() {
+            // Start logo rotation (180 seconds = 180000ms)
+            logoRotationInterval = setInterval(rotateLogo, 180000);
+            
+            // Start random animations (20 seconds = 20000ms)
+            animationInterval = setInterval(playRandomAnimation, 20000);
+            
+            // Trigger initial animation
+            setTimeout(() => {
+                playRandomAnimation();
+            }, 2000);
+            
+            // Load ticker data
+            loadTickerData();
+        }
+
+        // Start when DOM is ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', init);
+        } else {
+            init();
+        }
+    </script>
+</body>
+</html>
+

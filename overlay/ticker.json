@@ -1,0 +1,21 @@
+{
+  "messages": [
+    {
+      "text": "Visit ehr.lukeharper.co.uk for live streams and archives",
+      "type": "website"
+    },
+    {
+      "text": "Follow us for the latest updates and event announcements",
+      "type": "promo"
+    },
+    {
+      "text": "Check out our audio and video archives on the website",
+      "type": "promo"
+    },
+    {
+      "text": "Join us live for DJ sets and special events",
+      "type": "promo"
+    }
+  ]
+}
+
