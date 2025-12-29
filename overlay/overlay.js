@@ -131,6 +131,13 @@ function rotateLogo() {
             logoImg.classList.add('logo-spin');
         }
         
+        // Apply heater style if it's the heater image
+        if (nextLogo.src.includes('EHRHeater.png')) {
+            logoImg.classList.add('heater-style');
+        } else {
+            logoImg.classList.remove('heater-style');
+        }
+        
         // Fade in
         logoImg.classList.remove('fade-out');
         logoImg.classList.add('fade-in');
@@ -428,6 +435,15 @@ function startTickerCycle() {
  * Initialise overlay
  */
 function init() {
+    // Check initial logo and apply heater style if needed
+    const logoImg = document.getElementById('logo-img');
+    const currentLogo = logos[currentLogoIndex];
+    if (currentLogo.src.includes('EHRHeater.png')) {
+        logoImg.classList.add('heater-style');
+    } else {
+        logoImg.classList.remove('heater-style');
+    }
+    
     // Start logo rotation (180 seconds = 180000ms)
     logoRotationInterval = setInterval(rotateLogo, 180000);
     
