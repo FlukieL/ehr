@@ -48,11 +48,6 @@
             justify-content: space-between;
             padding: 0 40px;
             z-index: 10000;
-            transition: height var(--transition-speed) var(--transition-easing);
-        }
-
-        .overlay-container.expanded {
-            height: 200px;
         }
 
         /* Logo Section */
@@ -61,7 +56,7 @@
             align-items: center;
             justify-content: center;
             height: 100%;
-            width: 400px;
+            width: 160px;
             position: relative;
             flex-shrink: 0;
         }
@@ -76,8 +71,8 @@
         }
 
         .logo-img {
-            max-height: 160px;
-            max-width: 360px;
+            max-height: 100%;
+            max-width: 160px;
             object-fit: contain;
             transition: opacity var(--transition-speed) var(--transition-easing);
         }
@@ -407,7 +402,7 @@
         /* News Ticker Section */
         .ticker-section {
             flex: 1;
-            height: 100%;
+            height: 100px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -415,10 +410,14 @@
             margin-left: 40px;
             position: relative;
             opacity: 0;
-            transition: opacity 0.5s ease-in-out;
+            transform: scaleX(0);
+            transform-origin: right center;
+            transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1),
+                        opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .ticker-section.visible {
+            transform: scaleX(1);
             opacity: 1;
         }
 
@@ -429,6 +428,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            min-width: 0;
         }
 
         .ticker-content {
@@ -437,12 +437,73 @@
             font-size: 28px;
             font-weight: 500;
             text-align: center;
+            white-space: nowrap;
             opacity: 0;
-            transition: opacity 0.8s ease-in-out;
+            transform: translateY(20px) scale(0.9);
+            filter: blur(4px);
+            transition: opacity 1.5s cubic-bezier(0.4, 0, 0.2, 1),
+                        transform 1.5s cubic-bezier(0.4, 0, 0.2, 1),
+                        filter 1.5s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .ticker-content.visible {
             opacity: 1;
+            transform: translateY(0) scale(1);
+            filter: blur(0px);
+        }
+
+        .ticker-content.entering {
+            animation: tickerEnter 1.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+
+        .ticker-content.exiting {
+            animation: tickerExit 1.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+
+        @keyframes tickerEnter {
+            0% {
+                opacity: 0;
+                transform: translateY(30px) scale(0.85);
+                filter: blur(8px) brightness(0.5);
+            }
+            50% {
+                filter: blur(2px) brightness(1.2);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+                filter: blur(0px) brightness(1);
+            }
+        }
+
+        @keyframes tickerExit {
+            0% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+                filter: blur(0px) brightness(1);
+            }
+            50% {
+                filter: blur(4px) brightness(0.8);
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(-30px) scale(0.85);
+                filter: blur(8px) brightness(0.5);
+            }
+        }
+
+        @keyframes tickerGlow {
+            0%, 100% {
+                text-shadow: 0 0 10px rgba(255, 107, 53, 0.3);
+            }
+            50% {
+                text-shadow: 0 0 20px rgba(255, 107, 53, 0.8),
+                            0 0 30px rgba(255, 107, 53, 0.5);
+            }
+        }
+
+        .ticker-content.visible {
+            animation: tickerGlow 3s ease-in-out infinite;
         }
 
         .ticker-link {
@@ -639,33 +700,35 @@
 
         // Expand ticker section
         function expandTicker() {
-            const overlayContainer = document.querySelector('.overlay-container');
             const tickerSection = document.querySelector('.ticker-section');
             
-            overlayContainer.classList.add('expanded');
             tickerSection.classList.add('visible');
             isTickerExpanded = true;
             
-            // Show first message
-            showNextTickerMessage();
+            // Show first message after expansion animation
+            setTimeout(() => {
+                showNextTickerMessage();
+            }, 600);
         }
 
         // Retract ticker section
         function retractTicker() {
-            const overlayContainer = document.querySelector('.overlay-container');
             const tickerSection = document.querySelector('.ticker-section');
             const tickerContent = document.getElementById('ticker-content');
             
+            // Fade out content first
             tickerContent.classList.remove('visible');
+            tickerContent.classList.add('exiting');
             
+            // Retract section after fade
             setTimeout(() => {
                 tickerSection.classList.remove('visible');
-                overlayContainer.classList.remove('expanded');
+                tickerContent.classList.remove('exiting');
                 isTickerExpanded = false;
-            }, 800);
+            }, 1500);
         }
 
-        // Show next ticker message with fade
+        // Show next ticker message with enhanced animations
         function showNextTickerMessage() {
             if (!isTickerExpanded || tickerMessages.length === 0) {
                 return;
@@ -673,8 +736,9 @@
             
             const tickerContent = document.getElementById('ticker-content');
             
-            // Fade out current message
+            // Exit animation
             tickerContent.classList.remove('visible');
+            tickerContent.classList.add('exiting');
             
             setTimeout(() => {
                 // Get next message
@@ -690,12 +754,15 @@
                 }
                 
                 tickerContent.innerHTML = messageHTML;
+                tickerContent.classList.remove('exiting');
+                tickerContent.classList.add('entering');
                 
-                // Fade in new message
+                // Enter animation
                 setTimeout(() => {
+                    tickerContent.classList.remove('entering');
                     tickerContent.classList.add('visible');
-                }, 100);
-            }, 800);
+                }, 50);
+            }, 1500);
         }
 
         // Start ticker expand/retract cycle
@@ -710,12 +777,12 @@
                 }, 30000);
             }, 180000);
             
-            // Cycle through messages while ticker is expanded (change every 5 seconds)
+            // Cycle through messages while ticker is expanded (change every 8 seconds for slower transitions)
             tickerMessageInterval = setInterval(() => {
                 if (isTickerExpanded) {
                     showNextTickerMessage();
                 }
-            }, 5000);
+            }, 8000);
             
             // Show first expansion immediately
             expandTicker();
