@@ -48,6 +48,11 @@
             justify-content: space-between;
             padding: 0 40px;
             z-index: 10000;
+            transition: height var(--transition-speed) var(--transition-easing);
+        }
+
+        .overlay-container.expanded {
+            height: 200px;
         }
 
         /* Logo Section */
@@ -55,9 +60,10 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            height: 80px;
-            width: 200px;
+            height: 100%;
+            width: 400px;
             position: relative;
+            flex-shrink: 0;
         }
 
         .logo-container {
@@ -70,8 +76,8 @@
         }
 
         .logo-img {
-            max-height: 80px;
-            max-width: 180px;
+            max-height: 160px;
+            max-width: 360px;
             object-fit: contain;
             transition: opacity var(--transition-speed) var(--transition-easing);
         }
@@ -404,39 +410,39 @@
             height: 100%;
             display: flex;
             align-items: center;
+            justify-content: center;
             overflow: hidden;
             margin-left: 40px;
             position: relative;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+        }
+
+        .ticker-section.visible {
+            opacity: 1;
         }
 
         .ticker-wrapper {
             position: relative;
             width: 100%;
             height: 100%;
-            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .ticker-content {
-            position: absolute;
-            white-space: nowrap;
-            display: inline-block;
+            position: relative;
             color: var(--text-primary);
-            font-size: 24px;
+            font-size: 28px;
             font-weight: 500;
-            line-height: 100px;
-            will-change: transform;
+            text-align: center;
+            opacity: 0;
+            transition: opacity 0.8s ease-in-out;
         }
 
-        .ticker-item {
-            display: inline-block;
-            margin-right: 60px;
-            color: var(--text-primary);
-        }
-
-        .ticker-separator {
-            color: var(--accent-orange);
-            margin: 0 20px;
-            font-weight: bold;
+        .ticker-content.visible {
+            opacity: 1;
         }
 
         .ticker-link {
@@ -500,8 +506,10 @@
         let logoRotationInterval = null;
         let animationInterval = null;
         let tickerMessages = [];
-        let tickerAnimationId = null;
-        let tickerPosition = 0;
+        let currentTickerIndex = 0;
+        let tickerExpandInterval = null;
+        let tickerMessageInterval = null;
+        let isTickerExpanded = false;
 
         // Logo rotation (180 seconds)
         function rotateLogo() {
@@ -539,7 +547,7 @@
             }, 400);
         }
 
-        // Random animation (20 seconds)
+        // Random animation (more frequent - every 5 seconds)
         function playRandomAnimation() {
             const logoImg = document.getElementById('logo-img');
             const currentLogo = logos[currentLogoIndex];
@@ -607,8 +615,8 @@
                 // Shuffle messages
                 shuffleArray(tickerMessages);
                 
-                // Start ticker
-                startTicker();
+                // Start ticker cycle
+                startTickerCycle();
             } catch (error) {
                 console.error('Error loading ticker data:', error);
                 // Fallback message
@@ -617,7 +625,7 @@
                     type: 'website',
                     link: 'https://ehr.lukeharper.co.uk'
                 }];
-                startTicker();
+                startTickerCycle();
             }
         }
 
@@ -629,54 +637,88 @@
             }
         }
 
-        // Start ticker animation
-        function startTicker() {
+        // Expand ticker section
+        function expandTicker() {
+            const overlayContainer = document.querySelector('.overlay-container');
+            const tickerSection = document.querySelector('.ticker-section');
+            
+            overlayContainer.classList.add('expanded');
+            tickerSection.classList.add('visible');
+            isTickerExpanded = true;
+            
+            // Show first message
+            showNextTickerMessage();
+        }
+
+        // Retract ticker section
+        function retractTicker() {
+            const overlayContainer = document.querySelector('.overlay-container');
+            const tickerSection = document.querySelector('.ticker-section');
             const tickerContent = document.getElementById('ticker-content');
             
-            // Create ticker HTML
-            let tickerHTML = '';
-            // Duplicate messages for seamless loop
-            const duplicatedMessages = [...tickerMessages, ...tickerMessages];
+            tickerContent.classList.remove('visible');
             
-            duplicatedMessages.forEach((message, index) => {
-                let messageHTML = '';
+            setTimeout(() => {
+                tickerSection.classList.remove('visible');
+                overlayContainer.classList.remove('expanded');
+                isTickerExpanded = false;
+            }, 800);
+        }
+
+        // Show next ticker message with fade
+        function showNextTickerMessage() {
+            if (!isTickerExpanded || tickerMessages.length === 0) {
+                return;
+            }
+            
+            const tickerContent = document.getElementById('ticker-content');
+            
+            // Fade out current message
+            tickerContent.classList.remove('visible');
+            
+            setTimeout(() => {
+                // Get next message
+                const message = tickerMessages[currentTickerIndex % tickerMessages.length];
+                currentTickerIndex++;
                 
+                // Create message HTML
+                let messageHTML = '';
                 if (message.link) {
                     messageHTML = `<a href="${message.link}" target="_blank" class="ticker-link">${message.text}</a>`;
                 } else {
                     messageHTML = message.text;
                 }
                 
-                tickerHTML += `<span class="ticker-item">${messageHTML}</span>`;
+                tickerContent.innerHTML = messageHTML;
                 
-                if (index < duplicatedMessages.length - 1) {
-                    tickerHTML += '<span class="ticker-separator">•</span>';
+                // Fade in new message
+                setTimeout(() => {
+                    tickerContent.classList.add('visible');
+                }, 100);
+            }, 800);
+        }
+
+        // Start ticker expand/retract cycle
+        function startTickerCycle() {
+            // Expand every 3 minutes (180000ms), show for 30 seconds (30000ms)
+            tickerExpandInterval = setInterval(() => {
+                expandTicker();
+                
+                // Retract after 30 seconds
+                setTimeout(() => {
+                    retractTicker();
+                }, 30000);
+            }, 180000);
+            
+            // Cycle through messages while ticker is expanded (change every 5 seconds)
+            tickerMessageInterval = setInterval(() => {
+                if (isTickerExpanded) {
+                    showNextTickerMessage();
                 }
-            });
+            }, 5000);
             
-            tickerContent.innerHTML = tickerHTML;
-            
-            // Calculate total width
-            const totalWidth = tickerContent.offsetWidth;
-            const wrapperWidth = tickerContent.parentElement.offsetWidth;
-            
-            // Reset position
-            tickerPosition = wrapperWidth;
-            
-            // Animate ticker
-            function animateTicker() {
-                tickerPosition -= 1;
-                
-                // Reset when scrolled past
-                if (tickerPosition <= -totalWidth / 2) {
-                    tickerPosition = wrapperWidth;
-                }
-                
-                tickerContent.style.transform = `translateX(${tickerPosition}px)`;
-                tickerAnimationId = requestAnimationFrame(animateTicker);
-            }
-            
-            animateTicker();
+            // Show first expansion immediately
+            expandTicker();
         }
 
         // Initialise overlay
@@ -684,8 +726,8 @@
             // Start logo rotation (180 seconds = 180000ms)
             logoRotationInterval = setInterval(rotateLogo, 180000);
             
-            // Start random animations (20 seconds = 20000ms)
-            animationInterval = setInterval(playRandomAnimation, 20000);
+            // Start random animations (5 seconds = 5000ms for more frequent animations)
+            animationInterval = setInterval(playRandomAnimation, 5000);
             
             // Trigger initial animation
             setTimeout(() => {
