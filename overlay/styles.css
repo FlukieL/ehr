@@ -71,9 +71,9 @@ body {
     max-height: 160px;
     max-width: 400px;
     object-fit: contain;
-    transition: opacity var(--transition-speed) var(--transition-easing),
+    transition: opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1),
                 transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
-                filter var(--transition-speed) var(--transition-easing);
+                filter 0.6s cubic-bezier(0.4, 0, 0.2, 1);
     will-change: transform, opacity, filter;
 }
 
@@ -149,10 +149,12 @@ body {
 
 @keyframes logoGlow {
     0%, 100% {
-        filter: drop-shadow(0 0 5px rgba(255, 107, 53, 0.5));
+        filter: grayscale(100%) drop-shadow(0 0 5px rgba(255, 107, 53, 0.5));
+        opacity: 0.7;
     }
     50% {
-        filter: drop-shadow(0 0 25px rgba(255, 107, 53, 1)) drop-shadow(0 0 40px rgba(255, 107, 53, 0.8));
+        filter: grayscale(0%) drop-shadow(0 0 25px rgba(255, 107, 53, 1)) drop-shadow(0 0 40px rgba(255, 107, 53, 0.8));
+        opacity: 1;
     }
 }
 
