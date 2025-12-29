@@ -101,7 +101,7 @@ def main():
     """Main function."""
     script_dir = Path(__file__).parent
     project_root = script_dir.parent
-    logo_path = project_root / "assets" / "EHRLogo.png"
+    logo_path = project_root / "assets" / "EHRLogoRemoveBG.png"
     output_dir = project_root / "assets" / "logos"
     
     generate_optimised_logos(logo_path, output_dir)
@@ -110,3 +110,4 @@ def main():
 
 if __name__ == "__main__":
     sys.exit(main())
+

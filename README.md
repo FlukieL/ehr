@@ -39,7 +39,7 @@ A modern, animated website for streaming live DJ sets and managing audio/video a
 ```
 ehr/
 ├── assets/
-│   └── EHRLogo.png          # Logo image
+│   └── EHRLogoRemoveBG.png  # Logo image
 ├── data/
 │   ├── archives.json        # Audio and video sets configuration
 │   └── events.json          # Events calendar data
