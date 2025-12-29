@@ -372,7 +372,7 @@ body {
 }
 
 .logo-animate-glow {
-    animation: logoGlow 1.5s ease-in-out;
+    animation: logoGlow 2.5s ease-in-out;
 }
 
 .logo-animate-greyscale-pulse {
