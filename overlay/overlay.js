@@ -398,15 +398,15 @@ function showNextTickerMessage() {
  * Start ticker expand/retract cycle
  */
 function startTickerCycle() {
-    // Expand every 3 minutes (180000ms), show for 30 seconds (30000ms)
+    // Expand every 3.5 minutes (210000ms), show for 40 seconds (40000ms)
     tickerExpandInterval = setInterval(() => {
         expandTicker();
         
-        // Retract after 30 seconds
+        // Retract after 40 seconds
         setTimeout(() => {
             retractTicker();
-        }, 30000);
-    }, 180000);
+        }, 40000);
+    }, 210000);
     
     // Cycle through messages while ticker is expanded (change every 8 seconds for slower transitions)
     tickerMessageInterval = setInterval(() => {
@@ -417,6 +417,11 @@ function startTickerCycle() {
     
     // Show first expansion immediately
     expandTicker();
+    
+    // Retract first expansion after 40 seconds
+    setTimeout(() => {
+        retractTicker();
+    }, 40000);
 }
 
 /**
