@@ -38,10 +38,6 @@
             left: 0;
             width: 1920px;
             height: 160px;
-            background: rgba(0, 0, 0, 0.85);
-            -webkit-backdrop-filter: blur(10px);
-            backdrop-filter: blur(10px);
-            box-shadow: 0 -4px 20px rgba(255, 107, 53, 0.2);
             display: flex;
             align-items: flex-end;
             justify-content: space-between;
@@ -60,6 +56,13 @@
             position: relative;
             flex-shrink: 0;
             border-right: 2px solid var(--accent-orange);
+            transition: border-right-color 0.8s cubic-bezier(0.4, 0, 0.2, 1),
+                        border-right-width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .logo-section.border-hidden {
+            border-right-color: transparent;
+            border-right-width: 0;
         }
 
         .logo-container {
@@ -415,6 +418,10 @@
             transform: scaleX(0);
             transform-origin: right center;
             border-top: 2px solid var(--accent-orange);
+            background: rgba(0, 0, 0, 0.85);
+            -webkit-backdrop-filter: blur(10px);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 -4px 20px rgba(255, 107, 53, 0.2);
             transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1),
                         opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1);
         }
@@ -940,6 +947,10 @@
         // Expand ticker section
         function expandTicker() {
             const tickerSection = document.querySelector('.ticker-section');
+            const logoSection = document.querySelector('.logo-section');
+            
+            // Restore border when expanding
+            logoSection.classList.remove('border-hidden');
             
             tickerSection.classList.add('visible');
             isTickerExpanded = true;
@@ -954,10 +965,14 @@
         function retractTicker() {
             const tickerSection = document.querySelector('.ticker-section');
             const tickerContent = document.getElementById('ticker-content');
+            const logoSection = document.querySelector('.logo-section');
             
             // Fade out content first
             tickerContent.classList.remove('visible');
             tickerContent.classList.add('exiting');
+            
+            // Hide border when retracting
+            logoSection.classList.add('border-hidden');
             
             // Retract section after fade
             setTimeout(() => {
