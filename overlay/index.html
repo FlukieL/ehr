@@ -459,6 +459,50 @@
             animation: tickerEnter 1.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
         }
 
+        .ticker-animate-slide-left {
+            animation: tickerSlideLeft 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+
+        .ticker-animate-slide-right {
+            animation: tickerSlideRight 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+
+        .ticker-animate-slide-top {
+            animation: tickerSlideTop 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+
+        .ticker-animate-bounce {
+            animation: tickerBounce 1s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
+        }
+
+        .ticker-animate-zoom {
+            animation: tickerZoom 0.9s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+
+        .ticker-animate-rotate {
+            animation: tickerRotate 1s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+
+        .ticker-animate-flip {
+            animation: tickerFlip 1.1s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+
+        .ticker-animate-elastic {
+            animation: tickerElastic 1.2s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
+        }
+
+        .ticker-animate-glow-pulse {
+            animation: tickerGlowPulse 1.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+
+        .ticker-animate-fade-scale {
+            animation: tickerFadeScale 1s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+
+        .ticker-animate-wobble {
+            animation: tickerWobble 1.1s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+
         .ticker-content.exiting {
             animation: tickerExit 1.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
         }
@@ -476,6 +520,182 @@
                 opacity: 1;
                 transform: translateY(0) scale(1);
                 filter: blur(0px) brightness(1);
+            }
+        }
+
+        @keyframes tickerSlideLeft {
+            0% {
+                opacity: 0;
+                transform: translateX(100px) scale(0.9);
+                filter: blur(6px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateX(0) scale(1);
+                filter: blur(0px);
+            }
+        }
+
+        @keyframes tickerSlideRight {
+            0% {
+                opacity: 0;
+                transform: translateX(-100px) scale(0.9);
+                filter: blur(6px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateX(0) scale(1);
+                filter: blur(0px);
+            }
+        }
+
+        @keyframes tickerSlideTop {
+            0% {
+                opacity: 0;
+                transform: translateY(-50px) scale(0.85);
+                filter: blur(8px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+                filter: blur(0px);
+            }
+        }
+
+        @keyframes tickerBounce {
+            0% {
+                opacity: 0;
+                transform: translateY(50px) scale(0.5);
+            }
+            50% {
+                opacity: 1;
+                transform: translateY(-10px) scale(1.05);
+            }
+            70% {
+                transform: translateY(5px) scale(0.98);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        @keyframes tickerZoom {
+            0% {
+                opacity: 0;
+                transform: scale(0.3);
+                filter: blur(10px);
+            }
+            50% {
+                transform: scale(1.1);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1);
+                filter: blur(0px);
+            }
+        }
+
+        @keyframes tickerRotate {
+            0% {
+                opacity: 0;
+                transform: rotate(-180deg) scale(0.5);
+                filter: blur(8px);
+            }
+            100% {
+                opacity: 1;
+                transform: rotate(0deg) scale(1);
+                filter: blur(0px);
+            }
+        }
+
+        @keyframes tickerFlip {
+            0% {
+                opacity: 0;
+                transform: perspective(400px) rotateX(90deg) scale(0.8);
+            }
+            50% {
+                transform: perspective(400px) rotateX(-10deg) scale(1.05);
+            }
+            100% {
+                opacity: 1;
+                transform: perspective(400px) rotateX(0deg) scale(1);
+            }
+        }
+
+        @keyframes tickerElastic {
+            0% {
+                opacity: 0;
+                transform: scale(0);
+            }
+            50% {
+                opacity: 1;
+                transform: scale(1.3);
+            }
+            70% {
+                transform: scale(0.9);
+            }
+            85% {
+                transform: scale(1.05);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        @keyframes tickerGlowPulse {
+            0% {
+                opacity: 0;
+                transform: scale(0.9);
+                text-shadow: 0 0 0px rgba(255, 107, 53, 0);
+            }
+            50% {
+                opacity: 1;
+                transform: scale(1);
+                text-shadow: 0 0 30px rgba(255, 107, 53, 1),
+                            0 0 50px rgba(255, 107, 53, 0.8);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1);
+                text-shadow: 0 0 10px rgba(255, 107, 53, 0.3);
+            }
+        }
+
+        @keyframes tickerFadeScale {
+            0% {
+                opacity: 0;
+                transform: scale(0.6);
+                filter: blur(10px) brightness(0.3);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1);
+                filter: blur(0px) brightness(1);
+            }
+        }
+
+        @keyframes tickerWobble {
+            0% {
+                opacity: 0;
+                transform: translateX(-50px) rotate(-5deg) scale(0.8);
+            }
+            25% {
+                opacity: 0.7;
+                transform: translateX(20px) rotate(5deg) scale(0.95);
+            }
+            50% {
+                opacity: 0.9;
+                transform: translateX(-10px) rotate(-3deg) scale(1.02);
+            }
+            75% {
+                opacity: 1;
+                transform: translateX(5px) rotate(2deg) scale(0.98);
+            }
+            100% {
+                opacity: 1;
+                transform: translateX(0) rotate(0deg) scale(1);
             }
         }
 
@@ -574,6 +794,22 @@
         let tickerExpandInterval = null;
         let tickerMessageInterval = null;
         let isTickerExpanded = false;
+
+        // Ticker entry animation classes
+        const tickerAnimations = [
+            'ticker-animate-slide-left',
+            'ticker-animate-slide-right',
+            'ticker-animate-slide-top',
+            'ticker-animate-bounce',
+            'ticker-animate-zoom',
+            'ticker-animate-rotate',
+            'ticker-animate-flip',
+            'ticker-animate-elastic',
+            'ticker-animate-glow-pulse',
+            'ticker-animate-fade-scale',
+            'ticker-animate-wobble',
+            'entering' // Keep the original entering animation as an option
+        ];
 
         // Logo rotation (180 seconds)
         function rotateLogo() {
@@ -739,6 +975,9 @@
             
             const tickerContent = document.getElementById('ticker-content');
             
+            // Remove all animation classes
+            tickerContent.classList.remove(...tickerAnimations);
+            
             // Exit animation
             tickerContent.classList.remove('visible');
             tickerContent.classList.add('exiting');
@@ -758,13 +997,23 @@
                 
                 tickerContent.innerHTML = messageHTML;
                 tickerContent.classList.remove('exiting');
-                tickerContent.classList.add('entering');
                 
-                // Enter animation
+                // Select random animation
+                const randomAnimation = tickerAnimations[Math.floor(Math.random() * tickerAnimations.length)];
+                tickerContent.classList.add(randomAnimation);
+                
+                // Force reflow to ensure animation starts
+                void tickerContent.offsetWidth;
+                
+                // Transition to visible state after animation
+                const animationDuration = randomAnimation === 'entering' ? 1500 : 
+                                         randomAnimation.includes('bounce') || randomAnimation.includes('elastic') ? 1200 :
+                                         randomAnimation.includes('glow-pulse') ? 1300 : 1000;
+                
                 setTimeout(() => {
-                    tickerContent.classList.remove('entering');
+                    tickerContent.classList.remove(...tickerAnimations);
                     tickerContent.classList.add('visible');
-                }, 50);
+                }, animationDuration);
             }, 1500);
         }
 
