@@ -161,9 +161,17 @@ body {
         filter: grayscale(100%) !important;
         opacity: 0.7 !important;
     }
+    25% {
+        filter: grayscale(75%) !important;
+        opacity: 0.8 !important;
+    }
     50% {
         filter: grayscale(0%) !important;
         opacity: 1 !important;
+    }
+    75% {
+        filter: grayscale(75%) !important;
+        opacity: 0.8 !important;
     }
 }
 
@@ -368,7 +376,7 @@ body {
 }
 
 .logo-animate-greyscale-pulse {
-    animation: logoGreyscalePulse 2s ease-in-out;
+    animation: logoGreyscalePulse 3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .logo-animate-zoom {
