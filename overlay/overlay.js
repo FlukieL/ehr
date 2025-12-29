@@ -408,12 +408,12 @@ function startTickerCycle() {
         }, 40000);
     }, 210000);
     
-    // Cycle through messages while ticker is expanded (change every 8 seconds for slower transitions)
+    // Cycle through messages while ticker is expanded (change every 9.5 seconds for slower transitions)
     tickerMessageInterval = setInterval(() => {
         if (isTickerExpanded) {
             showNextTickerMessage();
         }
-    }, 8000);
+    }, 9500);
     
     // Show first expansion immediately
     expandTicker();
