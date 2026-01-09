@@ -2,11 +2,11 @@
   "events": [
     {
       "id": 1,
-      "title": "deadmau5 DJ set",
+      "title": "deadmau5 discog set",
       "date": "2026-01-16",
       "time": "18:00",
       "location": "Online",
-      "description": "deadmau5 DJ set",
+      "description": "deadmau5 discog set",
       "type": "event"
     }
   ]
