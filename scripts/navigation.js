@@ -33,10 +33,12 @@ let navButtons = null;
  * Sets up event listeners for navigation buttons and identifies the initial active section.
  * Should be called once when the page loads.
  * 
+ * @param {string} [defaultTab] - The default tab section ID to activate if no hash is present
+ * 
  * @example
- * initNavigation();
+ * initNavigation('audio-archives');
  */
-export function initNavigation() {
+export function initNavigation(defaultTab = null) {
     sections = document.querySelectorAll('.section');
     navButtons = document.querySelectorAll('.nav-button');
 
@@ -45,11 +47,44 @@ export function initNavigation() {
         return;
     }
 
+    // Check for hash in URL first (takes priority)
+    const hash = window.location.hash.slice(1);
+    
     // Set initial active section
-    const initialSection = document.querySelector('.section.active');
-    if (initialSection) {
-        activeSection = initialSection.id;
-        updateActiveButton(activeSection);
+    let initialSection = null;
+    
+    if (hash) {
+        // Hash takes priority - check if section exists
+        initialSection = document.getElementById(hash);
+        if (initialSection) {
+            // Hash section exists - will be activated by initHashNavigation
+            // Don't activate it here to avoid double activation
+        } else {
+            // Invalid hash - fall back to default tab
+            if (defaultTab) {
+                initialSection = document.getElementById(defaultTab);
+                if (initialSection) {
+                    initialSection.classList.add('active');
+                    activeSection = defaultTab;
+                    updateActiveButton(defaultTab);
+                }
+            }
+        }
+    } else if (defaultTab) {
+        // Use default tab from config if no hash
+        initialSection = document.getElementById(defaultTab);
+        if (initialSection) {
+            initialSection.classList.add('active');
+            activeSection = defaultTab;
+            updateActiveButton(defaultTab);
+        }
+    } else {
+        // Fallback to any section with active class
+        initialSection = document.querySelector('.section.active');
+        if (initialSection) {
+            activeSection = initialSection.id;
+            updateActiveButton(activeSection);
+        }
     }
 
     // Add click event listeners to navigation buttons

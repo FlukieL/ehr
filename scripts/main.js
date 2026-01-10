@@ -7,7 +7,7 @@
  * @module main
  */
 
-import { loadConfig, getAudioArchives, getVideoArchives } from './config.js';
+import { loadConfig, getAudioArchives, getVideoArchives, getDefaultTab } from './config.js';
 import { initNavigation, initHashNavigation, switchSection } from './navigation.js';
 import { 
     initLiveStreams, 
@@ -53,8 +53,13 @@ async function init() {
  */
 async function startInitialisation() {
     try {
-        // Initialise navigation first
-        initNavigation();
+        // Load default tab from site configuration
+        const defaultTab = await getDefaultTab();
+        
+        // Initialise navigation with default tab
+        initNavigation(defaultTab);
+        
+        // Hash navigation takes priority over default tab
         initHashNavigation();
 
         // Initialise logo animations (plays on load, every 69s, and on click)

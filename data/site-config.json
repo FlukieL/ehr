@@ -1,0 +1,9 @@
+{
+  "availableTabs": {
+    "live-streams": "Live Streams",
+    "audio-archives": "Audio Sets",
+    "video-archives": "Video Sets",
+    "events": "Events"
+  },
+  "defaultTab": "audio-archives"
+}

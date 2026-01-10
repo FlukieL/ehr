@@ -20,6 +20,18 @@ let configData = null;
 let configError = null;
 
 /**
+ * Site configuration data loaded from site-config.json
+ * @type {Object|null}
+ */
+let siteConfigData = null;
+
+/**
+ * Error state for site configuration loading
+ * @type {Error|null}
+ */
+let siteConfigError = null;
+
+/**
  * Loads the archives.json configuration file
  * 
  * @returns {Promise<Object>} Promise that resolves with the configuration data
@@ -104,10 +116,75 @@ export async function getVideoArchives() {
 }
 
 /**
+ * Loads the site-config.json configuration file
+ * 
+ * @returns {Promise<Object>} Promise that resolves with the site configuration data
+ * @throws {Error} If the configuration file cannot be loaded or parsed
+ * 
+ * @example
+ * const siteConfig = await loadSiteConfig();
+ * console.log(siteConfig.defaultTab); // The default tab section ID
+ */
+export async function loadSiteConfig() {
+    if (siteConfigData) {
+        return siteConfigData;
+    }
+
+    if (siteConfigError) {
+        throw siteConfigError;
+    }
+
+    try {
+        // Add cache-busting parameter to ensure fresh data
+        const cacheBuster = `?t=${Date.now()}`;
+        const response = await fetch(`data/site-config.json${cacheBuster}`);
+        
+        if (!response.ok) {
+            throw new Error(`Failed to load site configuration: ${response.status} ${response.statusText}`);
+        }
+
+        const data = await response.json();
+        
+        // Validate configuration structure
+        if (!data || typeof data !== 'object') {
+            throw new Error('Invalid site configuration format: expected an object');
+        }
+
+        siteConfigData = data;
+        return siteConfigData;
+    } catch (error) {
+        siteConfigError = error;
+        console.error('Error loading site configuration:', error);
+        throw error;
+    }
+}
+
+/**
+ * Gets the default tab from the site configuration
+ * 
+ * @returns {Promise<string>} Promise that resolves with the default tab section ID
+ * 
+ * @example
+ * const defaultTab = await getDefaultTab();
+ * console.log(defaultTab); // e.g., "audio-archives"
+ */
+export async function getDefaultTab() {
+    try {
+        const siteConfig = await loadSiteConfig();
+        return siteConfig.defaultTab || 'live-streams'; // Fallback to live-streams if not specified
+    } catch (error) {
+        console.warn('Could not load default tab from config, using fallback:', error);
+        return 'live-streams'; // Fallback to live-streams on error
+    }
+}
+
+/**
  * Resets the configuration cache (useful for testing or reloading)
  */
 export function resetConfig() {
     configData = null;
     configError = null;
+    siteConfigData = null;
+    siteConfigError = null;
 }
 
