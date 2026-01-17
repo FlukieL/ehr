@@ -387,30 +387,21 @@ function showNextTickerMessage() {
 /**
  * Start ticker cycle
  */
+/**
+ * Start ticker cycle
+ */
 function startTickerCycle() {
-    // For Starting Screen: Keep ticker expanded most of the time?
-    // Original: Expand every 3.5 mins for 40 secs
-    // Starting: Maybe show constantly or more frequently?
-    // User didn't specify, but "Getting Ready" implies it should be visible.
-    // I will increase visibility duration: Show for 60s, hide for 10s (brief refresh).
+    // Ensure ticker stays expanded permanently for the starting screen
 
-    tickerExpandInterval = setInterval(() => {
-        expandTicker();
-        setTimeout(() => {
-            retractTicker();
-        }, 60000); // Show for 60 seconds
-    }, 75000); // Cycle every 75 seconds
-
+    // Cycle through messages continuously
     tickerMessageInterval = setInterval(() => {
         if (isTickerExpanded) {
             showNextTickerMessage();
         }
     }, 8000); // Change message every 8 seconds
 
+    // Show initial expansion immediately and keep it open
     expandTicker();
-    setTimeout(() => {
-        retractTicker();
-    }, 60000);
 }
 
 /**
