@@ -23,8 +23,8 @@
 }
 
 .logo-img {
-    max-width: 800px;
-    max-height: 500px;
+    max-width: 1000px;
+    max-height: 625px;
     /* Ensure animations still apply but size is unconstrained */
 }
 
