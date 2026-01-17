@@ -1,0 +1,84 @@
+@import url("styles.css");
+
+/* Override Layout for Starting Screen - Centered Design */
+.overlay-container {
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    /* Full 1080p height */
+    padding: 0;
+    background: transparent;
+}
+
+/* Logo Section Overrides */
+.logo-section {
+    width: auto;
+    height: auto;
+    border: none !important;
+    /* Remove the side border used in footer */
+    margin-bottom: 40px;
+    /* Space between logo and ticker */
+    background: transparent;
+}
+
+.logo-img {
+    max-width: 800px;
+    max-height: 500px;
+    /* Ensure animations still apply but size is unconstrained */
+}
+
+/* Ticker Section Overrides */
+.ticker-section {
+    flex: 0 0 auto;
+    /* Don't stretch */
+    height: auto;
+    width: auto;
+    min-width: 600px;
+    margin-left: 0;
+    /* Remove footer margin */
+    margin-bottom: 0;
+    border-top: none;
+    /* Remove footer border */
+
+    /* Pill Design */
+    background: rgba(0, 0, 0, 0.7);
+    border-radius: 100px;
+    border: 2px solid var(--accent-orange);
+    padding: 15px 50px;
+
+    /* Reset Transform Origin for Centered Expansion */
+    transform-origin: center center;
+    transform: scale(0.8);
+    opacity: 0;
+}
+
+.ticker-section.visible {
+    transform: scale(1);
+    opacity: 1;
+}
+
+/* Increase Text Size for Hero Mode */
+.ticker-content {
+    font-size: 48px;
+    padding: 10px 0;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+}
+
+/* Ensure Logo Container doesn't constrain */
+.logo-container {
+    width: auto;
+    height: auto;
+}
+
+/* Override Ticker Wrapper to fit content */
+.ticker-wrapper {
+    width: auto;
+    justify-content: center;
+}
+
+/* Ticker Link Styling Override */
+.ticker-link {
+    color: var(--accent-orange-light);
+    font-weight: 700;
+}
