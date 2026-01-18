@@ -133,11 +133,11 @@
       "repost_count": 0
     },
     {
-      "platform": "mixcloud",
+      "platform": "house-mixes",
       "title": "EHR - Deadmau5 Discog Mix",
-      "url": "https://www.mixcloud.com/ElectricHeaterRoom/ehr-deadmau5-discog-mix/",
-      "embedUrl": "https://www.mixcloud.com/widget/iframe/?feed=https%3A//www.mixcloud.com/ElectricHeaterRoom/ehr-deadmau5-discog-mix/",
-      "key": "/ElectricHeaterRoom/ehr-deadmau5-discog-mix/",
+      "url": "https://www.house-mixes.com/profile/flukiel/play/ehr-deadmau5-discog-mix",
+      "embedUrl": "https://www.house-mixes.com/embed/flukiel/ehr-deadmau5-discog-mix/classic?theme=dark",
+      "key": "/flukiel/ehr-deadmau5-discog-mix",
       "created_time": "2026-01-18T18:00:00Z",
       "play_count": 0,
       "listener_count": 0,

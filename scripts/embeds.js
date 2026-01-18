@@ -33,19 +33,19 @@ function addVkLanguageParam(embedUrl) {
     if (!embedUrl || typeof embedUrl !== 'string') {
         return embedUrl;
     }
-    
+
     // Check if it's a VK embed URL
     if (embedUrl.includes('vk.com/video_ext.php') || embedUrl.includes('vkvideo.ru/video_ext.php')) {
         // Check if lang parameter already exists
         if (embedUrl.includes('lang=')) {
             return embedUrl;
         }
-        
+
         // Add lang=en parameter
         const separator = embedUrl.includes('?') ? '&' : '?';
         return `${embedUrl}${separator}lang=en`;
     }
-    
+
     return embedUrl;
 }
 
@@ -63,7 +63,7 @@ function addVkLanguageParam(embedUrl) {
  */
 export function initTwitchEmbed(channel, containerId, options = {}) {
     const container = document.getElementById(containerId);
-    
+
     if (!container) {
         console.warn(`Twitch Embed: Container "${containerId}" not found`);
         return;
@@ -111,7 +111,7 @@ export function initTwitchEmbed(channel, containerId, options = {}) {
  */
 export function initMixcloudWidget(feedUrl, containerId, widgetId = null) {
     const container = document.getElementById(containerId);
-    
+
     if (!container) {
         console.warn(`Mixcloud Widget: Container "${containerId}" not found`);
         return null;
@@ -130,7 +130,7 @@ export function initMixcloudWidget(feedUrl, containerId, widgetId = null) {
 
     try {
         const id = widgetId || `mixcloud-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-        
+
         // Create iframe for Mixcloud widget
         const iframe = document.createElement('iframe');
         iframe.width = '100%';
@@ -139,9 +139,9 @@ export function initMixcloudWidget(feedUrl, containerId, widgetId = null) {
         iframe.frameBorder = '0';
         iframe.allow = 'autoplay';
         iframe.id = `mixcloud-iframe-${id}`;
-        
+
         container.appendChild(iframe);
-        
+
         // Initialise PlayerWidget with the iframe
         const widget = Mixcloud.PlayerWidget(iframe);
 
@@ -186,7 +186,7 @@ export function initMixcloudWidget(feedUrl, containerId, widgetId = null) {
  */
 export function createIframeEmbed(embedUrl, containerId, options = {}) {
     const container = document.getElementById(containerId);
-    
+
     if (!container) {
         console.warn(`Iframe Embed: Container "${containerId}" not found`);
         return;
@@ -238,7 +238,7 @@ export function createAudioArchiveItem(archiveItem, container) {
     // Create header with title and share button
     const headerDiv = document.createElement('div');
     headerDiv.className = 'archive-item-header';
-    
+
     const titleDiv = document.createElement('div');
     titleDiv.className = 'archive-title';
     titleDiv.textContent = archiveItem.title;
@@ -258,7 +258,7 @@ export function createAudioArchiveItem(archiveItem, container) {
         });
         headerDiv.appendChild(shareButton);
     }
-    
+
     itemDiv.appendChild(headerDiv);
 
     // Add date if available
@@ -278,7 +278,7 @@ export function createAudioArchiveItem(archiveItem, container) {
 
     const embedDiv = document.createElement('div');
     embedDiv.className = 'archive-embed';
-    
+
     const uniqueId = `audio-${archiveItem.platform}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
     embedDiv.id = uniqueId;
     itemDiv.appendChild(embedDiv);
@@ -308,6 +308,11 @@ export function createAudioArchiveItem(archiveItem, container) {
             height: '150',
             title: archiveItem.title
         });
+    } else if (archiveItem.platform === 'house-mixes') {
+        createIframeEmbed(archiveItem.embedUrl, uniqueId, {
+            height: '180',
+            title: archiveItem.title
+        });
     } else {
         console.warn(`Unknown audio platform: ${archiveItem.platform}`);
     }
@@ -323,7 +328,7 @@ export function createAudioArchiveItem(archiveItem, container) {
 function setupArchiveItemAnimation(itemElement) {
     // Add initial hidden state
     itemElement.classList.add('archive-item-animate');
-    
+
     // Create observer for this item
     const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
@@ -342,7 +347,7 @@ function setupArchiveItemAnimation(itemElement) {
         rootMargin: '50px', // Start animation slightly before entering viewport
         threshold: 0.1
     });
-    
+
     observer.observe(itemElement);
 }
 
@@ -356,7 +361,7 @@ function setupArchiveItemAnimation(itemElement) {
 function setupVideoPlaylistItemAnimation(itemElement) {
     // Add initial hidden state
     itemElement.classList.add('video-playlist-item-animate');
-    
+
     // Create observer for this item
     const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
@@ -375,7 +380,7 @@ function setupVideoPlaylistItemAnimation(itemElement) {
         rootMargin: '50px', // Start animation slightly before entering viewport
         threshold: 0.1
     });
-    
+
     observer.observe(itemElement);
 }
 
@@ -404,7 +409,7 @@ export function createVideoArchiveItem(archiveItem, container) {
 
     const embedDiv = document.createElement('div');
     embedDiv.className = 'archive-embed';
-    
+
     const uniqueId = `video-${archiveItem.platform}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
     embedDiv.id = uniqueId;
     itemDiv.appendChild(embedDiv);
@@ -458,7 +463,7 @@ export function initLiveStreams(kickChannel, twitchChannel) {
  */
 export function loadAudioArchives(audioArchives) {
     const container = document.getElementById('audio-archives-container');
-    
+
     if (!container) {
         console.warn('Audio archives container not found');
         return;
@@ -482,10 +487,10 @@ export function loadAudioArchives(audioArchives) {
     // Group archives by year
     const archivesByYear = new Map();
     sortedArchives.forEach(item => {
-        const year = item.created_time 
-            ? new Date(item.created_time).getFullYear() 
+        const year = item.created_time
+            ? new Date(item.created_time).getFullYear()
             : 'Unknown';
-        
+
         if (!archivesByYear.has(year)) {
             archivesByYear.set(year, []);
         }
@@ -536,7 +541,7 @@ export function loadAudioArchives(audioArchives) {
                 if (!loaded && archivesByYear.has(parseInt(year)) || year === 'Unknown') {
                     // Load content for this year
                     const yearArchives = archivesByYear.get(year === 'Unknown' ? 'Unknown' : parseInt(year));
-                    
+
                     yearArchives.forEach((item, index) => {
                         setTimeout(() => {
                             createAudioArchiveItem(item, yearContent);
@@ -560,13 +565,13 @@ export function loadAudioArchives(audioArchives) {
         const firstYearContent = firstSection.querySelector('.audio-year-content');
         const firstYear = firstSection.dataset.year;
         const firstYearArchives = archivesByYear.get(firstYear === 'Unknown' ? 'Unknown' : parseInt(firstYear));
-        
+
         firstYearArchives.forEach((item, index) => {
             setTimeout(() => {
                 createAudioArchiveItem(item, firstYearContent);
             }, index * 50);
         });
-        
+
         firstYearContent.dataset.loaded = 'true';
         firstSection.classList.add('loaded');
     }
@@ -592,12 +597,12 @@ function updateAudioSetUrl(archiveItem) {
 
     const url = new URL(window.location.href);
     const audioArchivesSection = document.getElementById('audio-archives');
-    
+
     // Only update URL if audio-archives section is active
     if (audioArchivesSection && audioArchivesSection.classList.contains('active')) {
         url.searchParams.set('audio', archiveItem.key);
         window.history.replaceState({}, '', url);
-        
+
         // Highlight the selected item
         highlightAudioSet(archiveItem.key);
     }
@@ -641,7 +646,7 @@ function scrollToAudioSet(audioKey) {
                 yearSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
             }
         }
-        
+
         // Wait a bit for content to load, then scroll to item
         setTimeout(() => {
             highlightAudioSet(audioKey);
@@ -659,7 +664,7 @@ function shareAudioSet(archiveItem) {
 
     const url = new URL(window.location.href);
     url.searchParams.set('audio', archiveItem.key);
-    
+
     const shareUrl = url.toString();
     const shareTitle = archiveItem.title || 'Audio Set';
     const shareText = `Check out ${shareTitle} on Electric Heater Room`;
@@ -695,7 +700,7 @@ export function loadVideoArchives(videoArchives) {
     const playerLayout = document.getElementById('video-player-layout');
     const mainPlayerContainer = document.getElementById('video-player-container');
     const playlistContainer = document.getElementById('video-playlist');
-    
+
     if (!playerLayout || !mainPlayerContainer || !playlistContainer) {
         console.warn('Video player layout elements not found');
         return;
@@ -720,10 +725,10 @@ export function loadVideoArchives(videoArchives) {
     // Group archives by year
     const archivesByYear = new Map();
     sortedArchives.forEach(item => {
-        const year = item.created_time 
-            ? new Date(item.created_time).getFullYear() 
+        const year = item.created_time
+            ? new Date(item.created_time).getFullYear()
             : 'Unknown';
-        
+
         if (!archivesByYear.has(year)) {
             archivesByYear.set(year, []);
         }
@@ -765,17 +770,17 @@ export function loadVideoArchives(videoArchives) {
             playlistItem.className = 'video-playlist-item';
             playlistItem.dataset.videoIndex = globalIndex;
             playlistItem.dataset.videoKey = item.key || '';
-            
+
             // Create content wrapper
             const contentWrapper = document.createElement('div');
             contentWrapper.className = 'video-playlist-item-content';
-            
+
             // Add title
             const titleDiv = document.createElement('div');
             titleDiv.className = 'video-playlist-item-title';
             titleDiv.textContent = item.title || 'Untitled';
             contentWrapper.appendChild(titleDiv);
-            
+
             // Add date if available
             if (item.created_time) {
                 const dateDiv = document.createElement('div');
@@ -790,9 +795,9 @@ export function loadVideoArchives(videoArchives) {
                 dateDiv.textContent = formattedDate;
                 contentWrapper.appendChild(dateDiv);
             }
-            
+
             playlistItem.appendChild(contentWrapper);
-            
+
             // Add share button
             const shareButton = document.createElement('button');
             shareButton.type = 'button';
@@ -805,7 +810,7 @@ export function loadVideoArchives(videoArchives) {
                 shareVideo(item, globalIndex);
             });
             playlistItem.appendChild(shareButton);
-            
+
             // Add click handler to load video (on playlist item, not share button)
             playlistItem.addEventListener('click', (e) => {
                 // Don't trigger if clicking the share button
@@ -816,10 +821,10 @@ export function loadVideoArchives(videoArchives) {
                 const clickedIndex = parseInt(playlistItem.dataset.videoIndex, 10);
                 loadVideoInPlayer(item, clickedIndex, sortedArchives, playlistContainer);
             });
-            
+
             // Set up scroll animation observer for this item
             setupVideoPlaylistItemAnimation(playlistItem);
-            
+
             yearContent.appendChild(playlistItem);
             globalIndex++;
         });
@@ -832,7 +837,7 @@ export function loadVideoArchives(videoArchives) {
     // Check URL for video parameter and load that video, otherwise load first
     const urlParams = new URLSearchParams(window.location.search);
     const videoKey = urlParams.get('video');
-    
+
     if (videoKey && sortedArchives.length > 0) {
         const videoIndex = sortedArchives.findIndex(v => v.key === videoKey);
         if (videoIndex !== -1) {
@@ -860,7 +865,7 @@ export function loadVideoArchives(videoArchives) {
  */
 function loadVideoInPlayer(videoItem, index, allVideos, playlistContainer) {
     const mainPlayerContainer = document.getElementById('video-player-container');
-    
+
     if (!mainPlayerContainer) {
         console.warn('Video player container not found');
         return;
@@ -868,18 +873,18 @@ function loadVideoInPlayer(videoItem, index, allVideos, playlistContainer) {
 
     // Update active state in playlist - query from document to ensure we get all items
     const playlistItems = document.querySelectorAll('.video-playlist-item');
-    
+
     // First, remove active class from all items
     playlistItems.forEach((item) => {
         item.classList.remove('active');
     });
-    
+
     // Then, add active class to the selected item using the video key for more reliable matching
     const targetKey = videoItem.key;
     playlistItems.forEach((item) => {
         const itemKey = item.dataset.videoKey;
         const itemIndex = parseInt(item.dataset.videoIndex, 10);
-        
+
         // Match by key if available, otherwise by index
         if (targetKey && itemKey === targetKey) {
             item.classList.add('active');
@@ -915,7 +920,7 @@ function loadVideoInPlayer(videoItem, index, allVideos, playlistContainer) {
         iframe.style.width = '100%';
         iframe.style.height = '100%';
         iframe.style.border = 'none';
-        
+
         mainPlayerContainer.appendChild(iframe);
     } else {
         console.warn(`Unknown video platform: ${videoItem.platform}`);
@@ -932,7 +937,7 @@ function loadVideoInPlayer(videoItem, index, allVideos, playlistContainer) {
 function shareVideo(videoItem, index) {
     const url = new URL(window.location.href);
     url.searchParams.set('video', videoItem.key || '');
-    
+
     const shareUrl = url.toString();
     const shareTitle = videoItem.title || 'Video';
     const shareText = `Check out ${shareTitle} on Electric Heater Room`;
@@ -996,14 +1001,14 @@ function fallbackCopyToClipboard(text) {
     textArea.style.pointerEvents = 'none';
     textArea.setAttribute('readonly', '');
     textArea.setAttribute('aria-hidden', 'true');
-    
+
     document.body.appendChild(textArea);
-    
+
     // Focus and select the text
     textArea.focus();
     textArea.select();
     textArea.setSelectionRange(0, textArea.value.length);
-    
+
     try {
         const successful = document.execCommand('copy');
         if (successful) {
@@ -1039,9 +1044,9 @@ function showShareConfirmation() {
         confirmation.textContent = 'Link copied to clipboard!';
         document.body.appendChild(confirmation);
     }
-    
+
     confirmation.classList.add('show');
-    
+
     // Hide after 2 seconds
     setTimeout(() => {
         confirmation.classList.remove('show');
@@ -1084,7 +1089,7 @@ export function unloadSectionMedia(sectionId) {
     if (sectionId === 'live-streams') {
         // Pause Twitch embed
         pauseTwitchEmbed();
-        
+
         // Unload Kick iframe by removing src (store original src first)
         const kickContainer = document.getElementById('kick-embed');
         const kickIframe = kickContainer ? kickContainer.querySelector('iframe') : null;
@@ -1095,7 +1100,7 @@ export function unloadSectionMedia(sectionId) {
             }
             kickIframe.src = '';
         }
-        
+
         // Unload Twitch iframe by removing src
         const twitchContainer = document.getElementById('twitch-embed');
         if (twitchContainer) {
@@ -1181,14 +1186,14 @@ export function reloadSectionMedia(sectionId) {
             // Dynamically import getActiveStream to avoid circular dependency
             import('./stream-controls.js').then(({ getActiveStream }) => {
                 const activeStream = getActiveStream();
-                
+
                 // Reload the currently active stream - always force a refresh
                 if (activeStream === 'kick') {
                     const kickContainer = document.getElementById('kick-embed');
                     if (kickContainer) {
                         const kickIframe = kickContainer.querySelector('iframe');
                         let originalSrc = null;
-                        
+
                         // Get original src from iframe or use default
                         if (kickIframe) {
                             originalSrc = kickIframe.getAttribute('data-original-src');
@@ -1196,16 +1201,16 @@ export function reloadSectionMedia(sectionId) {
                                 originalSrc = kickIframe.src;
                             }
                         }
-                        
+
                         // If no original src found, use default
                         if (!originalSrc) {
                             const kickChannel = 'flukie';
                             originalSrc = `https://player.kick.com/${kickChannel}`;
                         }
-                        
+
                         // Remove existing iframe and recreate to force refresh
                         kickContainer.innerHTML = '';
-                        
+
                         // Create new iframe with fresh src
                         const newIframe = document.createElement('iframe');
                         newIframe.src = originalSrc;
@@ -1219,7 +1224,7 @@ export function reloadSectionMedia(sectionId) {
                         newIframe.style.height = '100%';
                         newIframe.style.border = 'none';
                         newIframe.setAttribute('data-original-src', originalSrc);
-                        
+
                         kickContainer.appendChild(newIframe);
                     }
                 } else if (activeStream === 'twitch') {
@@ -1230,7 +1235,7 @@ export function reloadSectionMedia(sectionId) {
                         twitchContainer.innerHTML = '';
                         // Reset the twitchEmbed reference
                         twitchEmbed = null;
-                        
+
                         // Reinitialise Twitch embed
                         const twitchChannel = 'flukie';
                         initTwitchEmbed(twitchChannel, 'twitch-embed', {
@@ -1253,14 +1258,14 @@ export function reloadSectionMedia(sectionId) {
         iframes.forEach((iframe) => {
             const originalSrc = iframe.getAttribute('data-original-src');
             const currentSrc = iframe.src;
-            
+
             // If we have a stored original src, use it
             if (originalSrc) {
-                const needsReload = !currentSrc || 
-                                   currentSrc === '' || 
-                                   currentSrc === 'about:blank' ||
-                                   currentSrc === window.location.href;
-                
+                const needsReload = !currentSrc ||
+                    currentSrc === '' ||
+                    currentSrc === 'about:blank' ||
+                    currentSrc === window.location.href;
+
                 if (needsReload) {
                     // Store iframe attributes
                     const width = iframe.width || iframe.getAttribute('width') || '100%';
@@ -1270,7 +1275,7 @@ export function reloadSectionMedia(sectionId) {
                     const title = iframe.title || iframe.getAttribute('title') || '';
                     const id = iframe.id || '';
                     const style = iframe.getAttribute('style') || '';
-                    
+
                     // Create new iframe with same attributes
                     const newIframe = document.createElement('iframe');
                     newIframe.width = width;
@@ -1281,12 +1286,12 @@ export function reloadSectionMedia(sectionId) {
                     if (id) newIframe.id = id;
                     if (style) newIframe.setAttribute('style', style);
                     newIframe.setAttribute('data-original-src', originalSrc);
-                    
+
                     // Replace old iframe with new one
                     const parent = iframe.parentNode;
                     if (parent) {
                         parent.replaceChild(newIframe, iframe);
-                        
+
                         // Set src after a small delay to ensure DOM is ready
                         setTimeout(() => {
                             newIframe.src = originalSrc;
@@ -1314,14 +1319,14 @@ export function reloadSectionMedia(sectionId) {
             if (iframe) {
                 const originalSrc = iframe.getAttribute('data-original-src');
                 const currentSrc = iframe.src;
-                
+
                 // If we have a stored original src, use it
                 if (originalSrc) {
-                    const needsReload = !currentSrc || 
-                                       currentSrc === '' || 
-                                       currentSrc === 'about:blank' ||
-                                       currentSrc === window.location.href;
-                    
+                    const needsReload = !currentSrc ||
+                        currentSrc === '' ||
+                        currentSrc === 'about:blank' ||
+                        currentSrc === window.location.href;
+
                     if (needsReload) {
                         // Store iframe attributes
                         const width = iframe.width || iframe.getAttribute('width') || '100%';
@@ -1331,7 +1336,7 @@ export function reloadSectionMedia(sectionId) {
                         const title = iframe.title || iframe.getAttribute('title') || '';
                         const id = iframe.id || '';
                         const style = iframe.getAttribute('style') || '';
-                        
+
                         // Create new iframe with same attributes
                         const newIframe = document.createElement('iframe');
                         newIframe.width = width;
@@ -1342,12 +1347,12 @@ export function reloadSectionMedia(sectionId) {
                         if (id) newIframe.id = id;
                         if (style) newIframe.setAttribute('style', style);
                         newIframe.setAttribute('data-original-src', originalSrc);
-                        
+
                         // Replace old iframe with new one
                         const parent = iframe.parentNode;
                         if (parent) {
                             parent.replaceChild(newIframe, iframe);
-                            
+
                             // Set src after a small delay to ensure DOM is ready
                             setTimeout(() => {
                                 newIframe.src = originalSrc;
@@ -1405,13 +1410,13 @@ export function unloadStream(stream) {
 function isMobileDevice() {
     // Check window width (matches CSS media query breakpoint)
     const isMobileWidth = window.innerWidth <= 768;
-    
+
     // Check user agent for mobile devices
     const isMobileUserAgent = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-    
+
     // Also check for touch capability
     const hasTouchScreen = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
-    
+
     // Consider it mobile if width is small OR (user agent suggests mobile AND has touch)
     return isMobileWidth || (isMobileUserAgent && hasTouchScreen);
 }
@@ -1436,7 +1441,7 @@ function initVideoPlaylistToggle() {
     const playlistToggle = document.getElementById('video-playlist-toggle');
     const playlistWrapper = document.getElementById('video-playlist-wrapper');
     const videoArchivesSection = document.getElementById('video-archives');
-    
+
     if (!playlistToggle || !playlistWrapper || !videoArchivesSection) {
         return;
     }
@@ -1447,7 +1452,7 @@ function initVideoPlaylistToggle() {
         e.stopPropagation();
         toggleVideoPlaylistWrapper();
     });
-    
+
     // Initialise playlist wrapper as collapsed by default on landscape mobile devices only
     // Keep expanded by default on portrait (vertical) mobile
     if (isMobileDevice() && isLandscape()) {
@@ -1463,13 +1468,13 @@ function initVideoPlaylistToggle() {
  */
 function toggleVideoPlaylistWrapper() {
     const playlistWrapper = document.getElementById('video-playlist-wrapper');
-    
+
     if (!playlistWrapper) {
         return;
     }
 
     const isCollapsed = playlistWrapper.classList.contains('collapsed');
-    
+
     if (isCollapsed) {
         playlistWrapper.classList.remove('collapsed');
     } else {
