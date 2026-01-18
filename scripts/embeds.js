@@ -309,10 +309,29 @@ export function createAudioArchiveItem(archiveItem, container) {
             title: archiveItem.title
         });
     } else if (archiveItem.platform === 'house-mixes') {
+        // Crop the top 60px (header bar)
+        const visibleHeight = 180;
+        const cropHeight = 60;
+
         createIframeEmbed(archiveItem.embedUrl, uniqueId, {
-            height: '180',
+            height: (visibleHeight + cropHeight).toString(),
             title: archiveItem.title
         });
+
+        // Apply cropping styles
+        const embedContainer = document.getElementById(uniqueId);
+        if (embedContainer) {
+            embedContainer.style.height = `${visibleHeight}px`;
+            embedContainer.style.overflow = 'hidden';
+            embedContainer.style.position = 'relative';
+
+            const iframe = embedContainer.querySelector('iframe');
+            if (iframe) {
+                iframe.style.position = 'absolute';
+                iframe.style.top = `-${cropHeight}px`;
+                iframe.style.height = `${visibleHeight + cropHeight}px`;
+            }
+        }
     } else {
         console.warn(`Unknown audio platform: ${archiveItem.platform}`);
     }
