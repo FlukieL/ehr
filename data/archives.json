@@ -131,6 +131,18 @@
       "listener_count": 0,
       "favorite_count": 0,
       "repost_count": 0
+    },
+    {
+      "platform": "mixcloud",
+      "title": "EHR - Deadmau5 Discog Mix",
+      "url": "https://www.mixcloud.com/ElectricHeaterRoom/ehr-deadmau5-discog-mix/",
+      "embedUrl": "https://www.mixcloud.com/widget/iframe/?feed=https%3A//www.mixcloud.com/ElectricHeaterRoom/ehr-deadmau5-discog-mix/",
+      "key": "/ElectricHeaterRoom/ehr-deadmau5-discog-mix/",
+      "created_time": "2026-01-18T18:00:00Z",
+      "play_count": 0,
+      "listener_count": 0,
+      "favorite_count": 0,
+      "repost_count": 0
     }
   ],
   "video": [
