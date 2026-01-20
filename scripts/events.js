@@ -17,13 +17,13 @@
 export async function loadEvents() {
     try {
         const response = await fetch('data/events.json');
-        
+
         if (!response.ok) {
             throw new Error(`Failed to load events: ${response.status} ${response.statusText}`);
         }
 
         const data = await response.json();
-        
+
         if (!data || !Array.isArray(data.events)) {
             throw new Error('Invalid events format: expected an array');
         }
@@ -46,7 +46,7 @@ function formatDate(dateString) {
     const date = new Date(dateString + 'T00:00:00');
     const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
     const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-    
+
     return {
         day: date.getDate(),
         dayName: days[date.getDay()],
@@ -68,15 +68,15 @@ function generateGoogleCalendarUrl(event) {
     // Parse date and time
     const dateStr = event.date; // YYYY-MM-DD format
     const timeStr = event.time || '00:00'; // HH:MM format or default to midnight
-    
+
     // Create start date/time
     const [hours, minutes] = timeStr.split(':').map(Number);
     const startDate = new Date(dateStr + 'T' + String(hours).padStart(2, '0') + ':' + String(minutes).padStart(2, '0') + ':00');
-    
+
     // Default to 1 hour duration if no end time specified
     const endDate = new Date(startDate);
     endDate.setHours(endDate.getHours() + 1);
-    
+
     // Format dates for Google Calendar (YYYYMMDDTHHMMSSZ in UTC)
     const formatGoogleDate = (date) => {
         const year = date.getUTCFullYear();
@@ -87,10 +87,10 @@ function generateGoogleCalendarUrl(event) {
         const second = String(date.getUTCSeconds()).padStart(2, '0');
         return `${year}${month}${day}T${hour}${minute}${second}Z`;
     };
-    
+
     const start = formatGoogleDate(startDate);
     const end = formatGoogleDate(endDate);
-    
+
     // Build event details with website link
     const websiteUrl = 'https://ehr.lukeharper.co.uk';
     let details = event.description || '';
@@ -98,7 +98,7 @@ function generateGoogleCalendarUrl(event) {
         details += '\n\n';
     }
     details += websiteUrl;
-    
+
     // Build Google Calendar URL
     const params = new URLSearchParams({
         action: 'TEMPLATE',
@@ -107,7 +107,7 @@ function generateGoogleCalendarUrl(event) {
         details: details,
         location: event.location || ''
     });
-    
+
     return `https://calendar.google.com/calendar/render?${params.toString()}`;
 }
 
@@ -120,14 +120,14 @@ function generateGoogleCalendarUrl(event) {
  */
 function groupEventsByDate(events) {
     const grouped = {};
-    
+
     events.forEach(event => {
         if (!grouped[event.date]) {
             grouped[event.date] = [];
         }
         grouped[event.date].push(event);
     });
-    
+
     return grouped;
 }
 
@@ -136,11 +136,13 @@ function groupEventsByDate(events) {
  * 
  * @param {Array} events - Array of event objects
  * @param {HTMLElement} container - Container element to render the calendar into
+ * @param {string} [emptyMessage='No events scheduled'] - Message to display when there are no events
+ * @param {boolean} [sortDescending=false] - Whether to sort dates in descending order (newest first)
  * 
  * @example
  * renderCalendar(events, document.getElementById('calendar-container'));
  */
-export function renderCalendar(events, container) {
+export function renderCalendar(events, container, emptyMessage = 'No events scheduled', sortDescending = false) {
     if (!container) {
         console.warn('Calendar container not found');
         return;
@@ -150,28 +152,31 @@ export function renderCalendar(events, container) {
     container.innerHTML = '';
 
     if (events.length === 0) {
-        container.innerHTML = '<div class="no-events">No events scheduled</div>';
+        container.innerHTML = `<div class="no-events">${emptyMessage}</div>`;
         return;
     }
 
     // Group events by date
     const eventsByDate = groupEventsByDate(events);
-    
+
     // Sort events by date
-    const sortedDates = Object.keys(eventsByDate).sort();
-    
+    let sortedDates = Object.keys(eventsByDate).sort();
+    if (sortDescending) {
+        sortedDates = sortedDates.reverse();
+    }
+
     // Create calendar grid
     const calendarGrid = document.createElement('div');
     calendarGrid.className = 'calendar-grid';
-    
+
     sortedDates.forEach(dateString => {
         const dateInfo = formatDate(dateString);
         const dateEvents = eventsByDate[dateString];
-        
+
         // Create calendar day card
         const dayCard = document.createElement('div');
         dayCard.className = 'calendar-day';
-        
+
         // Add date header
         const dateHeader = document.createElement('div');
         dateHeader.className = 'calendar-day-header';
@@ -183,35 +188,47 @@ export function renderCalendar(events, container) {
             </div>
         `;
         dayCard.appendChild(dateHeader);
-        
+
         // Add events for this day
         const eventsList = document.createElement('div');
         eventsList.className = 'calendar-events';
-        
+
         dateEvents.forEach(event => {
             const eventCard = document.createElement('div');
             eventCard.className = `calendar-event calendar-event-${event.type || 'default'}`;
-            
+
             const googleCalendarUrl = generateGoogleCalendarUrl(event);
-            
+
             eventCard.innerHTML = `
                 <div class="event-time">${event.time || 'All Day'}</div>
                 <div class="event-title">${event.title}</div>
                 ${event.location ? `<div class="event-location">${event.location}</div>` : ''}
                 ${event.description ? `<div class="event-description">${event.description}</div>` : ''}
-                <a href="${googleCalendarUrl}" target="_blank" rel="noopener noreferrer" class="event-calendar-button" aria-label="Add to Google Calendar">
-                    <span class="event-calendar-icon">📅</span>
-                    <span class="event-calendar-text">Add to Google Calendar</span>
-                </a>
+                <div class="event-actions">
+                    ${event.audio_set_key ? `
+                    <a href="?audio=${event.audio_set_key}#audio-archives" class="event-calendar-button" aria-label="Listen to Audio Set">
+                        <span class="event-calendar-icon">🎵</span>
+                        <span class="event-calendar-text">Listen to Audio Set</span>
+                    </a>` : ''}
+                    ${event.video_set_key ? `
+                    <a href="?video=${event.video_set_key}#video-archives" class="event-calendar-button" aria-label="Watch Video Set">
+                        <span class="event-calendar-icon">📺</span>
+                        <span class="event-calendar-text">Watch Video Set</span>
+                    </a>` : ''}
+                    <a href="${googleCalendarUrl}" target="_blank" rel="noopener noreferrer" class="event-calendar-button" aria-label="Add to Google Calendar">
+                        <span class="event-calendar-icon">📅</span>
+                        <span class="event-calendar-text">Add to Google Calendar</span>
+                    </a>
+                </div>
             `;
-            
+
             eventsList.appendChild(eventCard);
         });
-        
+
         dayCard.appendChild(eventsList);
         calendarGrid.appendChild(dayCard);
     });
-    
+
     container.appendChild(calendarGrid);
 }
 
@@ -222,22 +239,85 @@ export function renderCalendar(events, container) {
  * loadAndDisplayEvents();
  */
 export async function loadAndDisplayEvents() {
-    const container = document.getElementById('calendar-container');
-    
-    if (!container) {
+    const calendarContainer = document.getElementById('calendar-container');
+    const pastEventsContainer = document.getElementById('past-events-container');
+
+    if (!calendarContainer) {
         console.warn('Calendar container not found');
         return;
     }
 
     // Show loading state
-    container.innerHTML = '<div class="loading">Loading events...</div>';
+    calendarContainer.innerHTML = '<div class="loading">Loading events...</div>';
+    if (pastEventsContainer) {
+        pastEventsContainer.innerHTML = '';
+    }
 
     try {
         const events = await loadEvents();
-        renderCalendar(events, container);
+
+        // Get current date at midnight for comparison
+        const now = new Date();
+        const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+        const upcomingEvents = [];
+        const pastEvents = [];
+
+        events.forEach(event => {
+            const eventDate = new Date(event.date + 'T00:00:00');
+            // Reset time part to ensure clean date comparison
+            eventDate.setHours(0, 0, 0, 0);
+
+            if (eventDate < today) {
+                pastEvents.push(event);
+            } else {
+                upcomingEvents.push(event);
+            }
+        });
+
+        // Render upcoming events (ascending order)
+        renderCalendar(upcomingEvents, calendarContainer, 'No upcoming events scheduled');
+
+        // Render past events if container exists (descending order)
+        if (pastEventsContainer) {
+            renderCalendar(pastEvents, pastEventsContainer, 'No past events', true);
+            setupPastEventsToggle(pastEvents.length > 0);
+        }
+
     } catch (error) {
         console.error('Error loading events:', error);
-        container.innerHTML = '<div class="error-message">Error loading events. Please try again later.</div>';
+        calendarContainer.innerHTML = '<div class="error-message">Error loading events. Please try again later.</div>';
     }
+}
+
+/**
+ * Sets up the toggle functionality for past events section
+ * 
+ * @param {boolean} hasPastEvents - Whether there are past events to show
+ * @private
+ */
+function setupPastEventsToggle(hasPastEvents) {
+    const wrapper = document.getElementById('past-events-wrapper');
+    const toggle = document.getElementById('past-events-toggle');
+
+    if (!wrapper || !toggle) return;
+
+    // Hide wrapper if no past events
+    if (!hasPastEvents) {
+        wrapper.style.display = 'none';
+        return;
+    }
+
+    wrapper.style.display = 'block';
+
+    // Remove existing listeners to avoid duplicates
+    const newToggle = toggle.cloneNode(true);
+    toggle.parentNode.replaceChild(newToggle, toggle);
+
+    newToggle.addEventListener('click', () => {
+        wrapper.classList.toggle('collapsed');
+        const isCollapsed = wrapper.classList.contains('collapsed');
+        newToggle.setAttribute('aria-expanded', !isCollapsed);
+    });
 }
 
