@@ -331,6 +331,24 @@ export function createAudioArchiveItem(archiveItem, container) {
                 iframe.style.top = `-${cropHeight}px`;
                 iframe.style.height = `${visibleHeight + cropHeight}px`;
             }
+
+            // Create clickable overlay to open profile in new tab
+            if (archiveItem.key) {
+                const overlay = document.createElement('a');
+                overlay.href = `https://www.house-mixes.com/profile${archiveItem.key}`;
+                overlay.target = '_blank';
+                overlay.rel = 'noopener noreferrer';
+                overlay.style.position = 'absolute';
+                overlay.style.top = '0';
+                overlay.style.left = '0';
+                overlay.style.width = '100%';
+                overlay.style.height = '100%';
+                overlay.style.zIndex = '10';
+                overlay.style.cursor = 'pointer';
+                overlay.setAttribute('aria-label', `Open ${archiveItem.title} on House-Mixes`);
+
+                embedContainer.appendChild(overlay);
+            }
         }
     } else {
         console.warn(`Unknown audio platform: ${archiveItem.platform}`);
