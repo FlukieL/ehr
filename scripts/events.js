@@ -208,12 +208,12 @@ export function renderCalendar(events, container, emptyMessage = 'No events sche
                     ${event.audio_set_key ? `
                     <a href="?audio=${event.audio_set_key}#audio-archives" class="event-calendar-button" aria-label="Listen to Audio Set">
                         <span class="event-calendar-icon">🎵</span>
-                        <span class="event-calendar-text">Listen to Audio Set</span>
+                        <span class="event-calendar-text">Listen</span>
                     </a>` : ''}
                     ${event.video_set_key ? `
                     <a href="?video=${event.video_set_key}#video-archives" class="event-calendar-button" aria-label="Watch Video Set">
                         <span class="event-calendar-icon">📺</span>
-                        <span class="event-calendar-text">Watch Video Set</span>
+                        <span class="event-calendar-text">Watch</span>
                     </a>` : ''}
                     <a href="${googleCalendarUrl}" target="_blank" rel="noopener noreferrer" class="event-calendar-button" aria-label="Add to Google Calendar">
                         <span class="event-calendar-icon">📅</span>
