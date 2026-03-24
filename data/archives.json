@@ -2,6 +2,18 @@
   "audio": [
     {
       "platform": "mixcloud",
+      "title": "EHR - Variety Right On Time",
+      "url": "https://www.mixcloud.com/ElectricHeaterRoom/ehr-variety-right-on-time/",
+      "embedUrl": "https://www.mixcloud.com/widget/iframe/?feed=https%3A//www.mixcloud.com/ElectricHeaterRoom/ehr-variety-right-on-time/",
+      "key": "/ElectricHeaterRoom/ehr-variety-right-on-time/",
+      "created_time": "2026-03-20T18:00:00Z",
+      "play_count": 0,
+      "listener_count": 0,
+      "favorite_count": 0,
+      "repost_count": 0
+    },
+    {
+      "platform": "mixcloud",
       "title": "EHR - Rebranded",
       "url": "https://www.mixcloud.com/FlukieL/ehr-rebranded/",
       "embedUrl": "https://www.mixcloud.com/widget/iframe/?feed=https%3A//www.mixcloud.com/FlukieL/ehr-rebranded/",

@@ -12,6 +12,17 @@
       "audio_set_key": "/flukiel/ehr-deadmau5-discog-mix",
       "video_set_name": "EHR - deadmau5 Discog Mix",
       "video_set_key": "230027318_456239025"
+    },
+    {
+      "id": 2,
+      "title": "EHR - Variety Right On Time",
+      "date": "2026-03-20",
+      "time": "18:00",
+      "location": "Online",
+      "description": "Variety set on Mixcloud (Electric Heater Room).",
+      "type": "event",
+      "audio_set_name": "EHR - Variety Right On Time",
+      "audio_set_key": "/ElectricHeaterRoom/ehr-variety-right-on-time/"
     }
   ]
 }
