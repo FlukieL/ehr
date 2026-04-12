@@ -2,6 +2,18 @@
   "audio": [
     {
       "platform": "mixcloud",
+      "title": "EHR - Garage n Stuff",
+      "url": "https://www.mixcloud.com/ElectricHeaterRoom/ehr-garage-n-stuff/",
+      "embedUrl": "https://www.mixcloud.com/widget/iframe/?feed=https%3A//www.mixcloud.com/ElectricHeaterRoom/ehr-garage-n-stuff/",
+      "key": "/ElectricHeaterRoom/ehr-garage-n-stuff/",
+      "created_time": "2026-04-11T18:00:00Z",
+      "play_count": 0,
+      "listener_count": 0,
+      "favorite_count": 0,
+      "repost_count": 0
+    },
+    {
+      "platform": "mixcloud",
       "title": "EHR - Variety Right On Time",
       "url": "https://www.mixcloud.com/ElectricHeaterRoom/ehr-variety-right-on-time/",
       "embedUrl": "https://www.mixcloud.com/widget/iframe/?feed=https%3A//www.mixcloud.com/ElectricHeaterRoom/ehr-variety-right-on-time/",
@@ -561,6 +573,18 @@
       "embedUrl": "https://vkvideo.ru/video_ext.php?oid=-230027318&id=456239027&hash=49b8a727341a2b5d",
       "key": "230027318_456239027",
       "created_time": "2026-03-20T18:00:00Z",
+      "play_count": 0,
+      "listener_count": 0,
+      "favorite_count": 0,
+      "repost_count": 0
+    },
+    {
+      "platform": "vk",
+      "title": "EHR - Garage n Stuff",
+      "url": "https://vkvideo.ru/video-230027318_456239028",
+      "embedUrl": "https://vkvideo.ru/video_ext.php?oid=-230027318&id=456239028&hash=009c30e02b40f479&hd=4",
+      "key": "230027318_456239028",
+      "created_time": "2026-04-11T18:00:00Z",
       "play_count": 0,
       "listener_count": 0,
       "favorite_count": 0,

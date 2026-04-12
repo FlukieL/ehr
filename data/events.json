@@ -25,6 +25,19 @@
       "audio_set_key": "/ElectricHeaterRoom/ehr-variety-right-on-time/",
       "video_set_name": "EHR - Variety Right On Time",
       "video_set_key": "230027318_456239027"
+    },
+    {
+      "id": 3,
+      "title": "EHR - Garage n Stuff",
+      "date": "2026-04-11",
+      "time": "18:00",
+      "location": "Online",
+      "description": "Garage set on Mixcloud and VK (Electric Heater Room).",
+      "type": "event",
+      "audio_set_name": "EHR - Garage n Stuff",
+      "audio_set_key": "/ElectricHeaterRoom/ehr-garage-n-stuff/",
+      "video_set_name": "EHR - Garage n Stuff",
+      "video_set_key": "230027318_456239028"
     }
   ]
 }
