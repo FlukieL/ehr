@@ -2,6 +2,18 @@
   "audio": [
     {
       "platform": "mixcloud",
+      "title": "EHR - Chill Sunday",
+      "url": "https://www.mixcloud.com/ElectricHeaterRoom/ehr-chill-sunday/",
+      "embedUrl": "https://www.mixcloud.com/widget/iframe/?feed=https%3A//www.mixcloud.com/ElectricHeaterRoom/ehr-chill-sunday/",
+      "key": "/ElectricHeaterRoom/ehr-chill-sunday/",
+      "created_time": "2026-07-26T18:00:00Z",
+      "play_count": 0,
+      "listener_count": 0,
+      "favorite_count": 0,
+      "repost_count": 0
+    },
+    {
+      "platform": "mixcloud",
       "title": "EHR - Garage n Stuff",
       "url": "https://www.mixcloud.com/ElectricHeaterRoom/ehr-garage-n-stuff/",
       "embedUrl": "https://www.mixcloud.com/widget/iframe/?feed=https%3A//www.mixcloud.com/ElectricHeaterRoom/ehr-garage-n-stuff/",
@@ -170,6 +182,18 @@
     }
   ],
   "video": [
+    {
+      "platform": "vk",
+      "title": "EHR - Chill Sunday",
+      "url": "https://vkvideo.ru/video-230027318_456239029",
+      "embedUrl": "https://vkvideo.ru/video_ext.php?oid=-230027318&id=456239029&hash=339084f89ad4f616",
+      "key": "230027318_456239029",
+      "created_time": "2026-07-26T18:00:00Z",
+      "play_count": 0,
+      "listener_count": 0,
+      "favorite_count": 0,
+      "repost_count": 0
+    },
     {
       "platform": "vk",
       "title": "EHR - Pendulum Mix",

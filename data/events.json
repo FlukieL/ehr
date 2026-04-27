@@ -38,6 +38,19 @@
       "audio_set_key": "/ElectricHeaterRoom/ehr-garage-n-stuff/",
       "video_set_name": "EHR - Garage n Stuff",
       "video_set_key": "230027318_456239028"
+    },
+    {
+      "id": 4,
+      "title": "EHR - chill mix",
+      "date": "2026-07-26",
+      "time": "18:00",
+      "location": "Online",
+      "description": "Chill mix on Mixcloud and VK (Electric Heater Room).",
+      "type": "event",
+      "audio_set_name": "EHR - Chill Sunday",
+      "audio_set_key": "/ElectricHeaterRoom/ehr-chill-sunday/",
+      "video_set_name": "EHR - Chill Sunday",
+      "video_set_key": "230027318_456239029"
     }
   ]
 }
