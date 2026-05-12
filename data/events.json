@@ -51,6 +51,17 @@
       "audio_set_key": "/ElectricHeaterRoom/ehr-chill-sunday/",
       "video_set_name": "EHR - Chill Sunday",
       "video_set_key": "230027318_456239029"
+    },
+    {
+      "id": 5,
+      "title": "EHR - filthy clean dnb [short]",
+      "date": "2026-05-08",
+      "time": "18:00",
+      "location": "Online",
+      "description": "Video set on VK (Electric Heater Room).",
+      "type": "event",
+      "video_set_name": "EHR - filthy clean dnb [short]",
+      "video_set_key": "230027318_456239031"
     }
   ]
 }
