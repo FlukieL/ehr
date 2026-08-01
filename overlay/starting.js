@@ -294,10 +294,37 @@ function expandTicker() {
         animationState.tickerAnimating = false;
         animationState.tickerAnimationEndTime = Date.now();
 
-        setTimeout(() => {
-            showNextTickerMessage();
-        }, ANIMATION_COOLDOWN);
+        showInitialTickerMessage();
     }, 800);
+}
+
+/**
+ * Render the first status message without first running an exit animation.
+ */
+function showInitialTickerMessage() {
+    if (!isTickerExpanded || shouldDelayAnimation('ticker')) {
+        setTimeout(showInitialTickerMessage, ANIMATION_COOLDOWN);
+        return;
+    }
+
+    const tickerContent = document.getElementById('ticker-content');
+    const tickerSection = document.querySelector('.ticker-section');
+    const message = tickerMessages[currentTickerIndex % tickerMessages.length];
+    currentTickerIndex++;
+
+    tickerContent.innerHTML = `<span class="starting-status">${message.text}</span>`;
+    tickerContent.classList.remove('visible', 'exiting', ...tickerAnimations);
+    tickerContent.classList.add('entering');
+    void tickerContent.offsetWidth;
+
+    setTimeout(() => {
+        tickerContent.classList.remove(...tickerAnimations);
+        tickerContent.classList.add('visible');
+        tickerSection.classList.remove('animating');
+        animationState.tickerAnimating = false;
+        animationState.tickerAnimationEndTime = Date.now();
+        startTickerMessageCycle();
+    }, 1500);
 }
 
 /**
@@ -385,22 +412,24 @@ function showNextTickerMessage() {
 }
 
 /**
- * Start ticker cycle
+ * Start message changes after the initial status has fully entered.
  */
+function startTickerMessageCycle() {
+    clearInterval(tickerMessageInterval);
+
+    tickerMessageInterval = setInterval(() => {
+        if (isTickerExpanded && !animationState.tickerAnimating) {
+            showNextTickerMessage();
+        }
+    }, 11000);
+}
+
 /**
  * Start ticker cycle
  */
 function startTickerCycle() {
-    // Ensure ticker stays expanded permanently for the starting screen
-
-    // Cycle through messages continuously
-    tickerMessageInterval = setInterval(() => {
-        if (isTickerExpanded) {
-            showNextTickerMessage();
-        }
-    }, 11000); // Keep each message readable before transitioning
-
-    // Show initial expansion immediately and keep it open
+    // The starting-screen ticker remains expanded permanently. The first
+    // message is rendered by expandTicker once the pill is visible.
     expandTicker();
 }
 
