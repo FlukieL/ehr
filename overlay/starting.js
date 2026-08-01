@@ -1,7 +1,7 @@
 /**
  * EHR OBS Overlay - Starting Screen Controller
  * Manages logo and ticker animations with coordination to prevent clashes
- * Enhanced for "Getting Ready" screen with faster rotation and more animations
+ * Enhanced for the "Getting Ready" screen with a calm, readable animation cadence
  */
 
 // Logo configuration
@@ -50,7 +50,7 @@ const animationState = {
 };
 
 // Minimum delay between animations to prevent clashes
-const ANIMATION_COOLDOWN = 300; // Reduced buffer for faster pace
+const ANIMATION_COOLDOWN = 500; // Keep a visible pause between independent animations
 const LOGO_ANIMATION_DURATION = 2000;
 const TICKER_ANIMATION_DURATION = 1500;
 
@@ -107,7 +107,7 @@ function shouldDelayAnimation(type) {
 }
 
 /**
- * Logo rotation (Faster: 10 seconds)
+ * Logo rotation
  */
 function rotateLogo() {
     const logoImg = document.getElementById('logo-img');
@@ -398,7 +398,7 @@ function startTickerCycle() {
         if (isTickerExpanded) {
             showNextTickerMessage();
         }
-    }, 8000); // Change message every 8 seconds
+    }, 11000); // Keep each message readable before transitioning
 
     // Show initial expansion immediately and keep it open
     expandTicker();
@@ -418,15 +418,15 @@ function init() {
         logoImg.classList.remove('heater-style');
     }
 
-    // Faster rotation: 10 seconds
-    logoRotationInterval = setInterval(rotateLogo, 10000);
+    // Keep logo swaps distinct from its shorter accent animations.
+    logoRotationInterval = setInterval(rotateLogo, 30000);
 
-    // More frequent animations: 2.5 seconds
-    animationInterval = setInterval(playRandomAnimation, 2500);
+    // Leave enough idle time for each animation to settle before the next begins.
+    animationInterval = setInterval(playRandomAnimation, 5000);
 
     setTimeout(() => {
         playRandomAnimation();
-    }, 1000);
+    }, 2000);
 
     loadTickerData();
 }
