@@ -51,8 +51,11 @@ let logoRotationInterval = null;
 let animationInterval = null;
 let tickerMessages = [];
 let currentTickerIndex = 0;
-let tickerExpandInterval = null;
-let tickerMessageInterval = null;
+let tickerExpandTimeout = null;
+let tickerMessageTimeout = null;
+let tickerTransitionTimeout = null;
+let tickerContentTimeout = null;
+let tickerSequence = 0;
 let isTickerExpanded = false;
 
 // Ticker entry animation classes
@@ -293,29 +296,33 @@ function shuffleArray(array) {
  * Expand ticker section
  */
 function expandTicker() {
+    if (isTickerExpanded || animationState.tickerAnimating) {
+        return;
+    }
+
     const tickerSection = document.querySelector('.ticker-section');
     const logoSection = document.querySelector('.logo-section');
+    const sequence = ++tickerSequence;
 
-    // Mark as animating
     animationState.tickerAnimating = true;
     tickerSection.classList.add('animating');
-
-    // Restore border when expanding
     logoSection.classList.remove('border-hidden');
-
     tickerSection.classList.add('visible');
     isTickerExpanded = true;
 
-    // Clear animating state after expansion
-    setTimeout(() => {
+    tickerTransitionTimeout = setTimeout(() => {
+        if (sequence !== tickerSequence || !isTickerExpanded) {
+            return;
+        }
+
         tickerSection.classList.remove('animating');
         animationState.tickerAnimating = false;
         animationState.tickerAnimationEndTime = Date.now();
+        showNextTickerMessage();
 
-        // Show first message after expansion animation (with delay to avoid clash)
-        setTimeout(() => {
-            showNextTickerMessage();
-        }, ANIMATION_COOLDOWN);
+        tickerExpandTimeout = setTimeout(() => {
+            retractTicker();
+        }, 40000);
     }, 800);
 }
 
@@ -323,28 +330,37 @@ function expandTicker() {
  * Retract ticker section
  */
 function retractTicker() {
+    if (!isTickerExpanded) {
+        return;
+    }
+
     const tickerSection = document.querySelector('.ticker-section');
     const tickerContent = document.getElementById('ticker-content');
     const logoSection = document.querySelector('.logo-section');
+    const sequence = ++tickerSequence;
 
-    // Mark as animating
+    clearTimeout(tickerMessageTimeout);
+    clearTimeout(tickerContentTimeout);
+    clearTimeout(tickerExpandTimeout);
+
     animationState.tickerAnimating = true;
     tickerSection.classList.add('animating');
-
-    // Fade out content first
-    tickerContent.classList.remove('visible');
+    tickerContent.classList.remove(...tickerAnimations, 'visible');
     tickerContent.classList.add('exiting');
-
-    // Hide border when retracting
     logoSection.classList.add('border-hidden');
 
-    // Retract section after fade
-    setTimeout(() => {
+    tickerTransitionTimeout = setTimeout(() => {
+        if (sequence !== tickerSequence) {
+            return;
+        }
+
         tickerSection.classList.remove('visible', 'animating');
         tickerContent.classList.remove('exiting');
         isTickerExpanded = false;
         animationState.tickerAnimating = false;
         animationState.tickerAnimationEndTime = Date.now();
+
+        tickerExpandTimeout = setTimeout(expandTicker, 170000);
     }, 1500);
 }
 
@@ -352,68 +368,57 @@ function retractTicker() {
  * Show next ticker message with enhanced animations and coordination
  */
 function showNextTickerMessage() {
-    if (!isTickerExpanded || tickerMessages.length === 0) {
+    if (!isTickerExpanded || tickerMessages.length === 0 || animationState.tickerAnimating) {
         return;
     }
 
-    // Check if we should delay to avoid clash
     if (shouldDelayAnimation('ticker')) {
-        // Reschedule for later
-        setTimeout(() => {
-            showNextTickerMessage();
-        }, ANIMATION_COOLDOWN);
+        tickerMessageTimeout = setTimeout(showNextTickerMessage, ANIMATION_COOLDOWN);
         return;
     }
 
     const tickerContent = document.getElementById('ticker-content');
     const tickerSection = document.querySelector('.ticker-section');
+    const sequence = tickerSequence;
 
-    // Mark as animating
     animationState.tickerAnimating = true;
     tickerSection.classList.add('animating');
-
-    // Remove all animation classes
-    tickerContent.classList.remove(...tickerAnimations);
-
-    // Exit animation
-    tickerContent.classList.remove('visible');
+    tickerContent.classList.remove(...tickerAnimations, 'visible');
     tickerContent.classList.add('exiting');
 
-    setTimeout(() => {
-        // Get next message
+    tickerContentTimeout = setTimeout(() => {
+        if (sequence !== tickerSequence || !isTickerExpanded) {
+            return;
+        }
+
         const message = tickerMessages[currentTickerIndex % tickerMessages.length];
         currentTickerIndex++;
 
-        // Create message HTML
-        let messageHTML = '';
-        if (message.link) {
-            messageHTML = `<a href="${message.link}" target="_blank" class="ticker-link">${message.text}</a>`;
-        } else {
-            messageHTML = message.text;
-        }
-
-        tickerContent.innerHTML = messageHTML;
+        tickerContent.innerHTML = message.link
+            ? `<a href="${message.link}" target="_blank" class="ticker-link">${message.text}</a>`
+            : message.text;
         tickerContent.classList.remove('exiting');
 
-        // Select random animation
         const randomAnimation = tickerAnimations[Math.floor(Math.random() * tickerAnimations.length)];
-        tickerContent.classList.add(randomAnimation);
+        const animationDuration = randomAnimation === 'entering' ? 1500
+            : randomAnimation.includes('bounce') || randomAnimation.includes('elastic') ? 1200
+                : randomAnimation.includes('glow-pulse') ? 1300 : 1000;
 
-        // Force reflow to ensure animation starts
+        tickerContent.classList.add(randomAnimation);
         void tickerContent.offsetWidth;
 
-        // Calculate animation duration
-        const animationDuration = randomAnimation === 'entering' ? 1500 :
-            randomAnimation.includes('bounce') || randomAnimation.includes('elastic') ? 1200 :
-                randomAnimation.includes('glow-pulse') ? 1300 : 1000;
+        tickerTransitionTimeout = setTimeout(() => {
+            if (sequence !== tickerSequence || !isTickerExpanded) {
+                return;
+            }
 
-        // Transition to visible state after animation
-        setTimeout(() => {
             tickerContent.classList.remove(...tickerAnimations);
             tickerContent.classList.add('visible');
             tickerSection.classList.remove('animating');
             animationState.tickerAnimating = false;
             animationState.tickerAnimationEndTime = Date.now();
+
+            tickerMessageTimeout = setTimeout(showNextTickerMessage, 9500);
         }, animationDuration);
     }, 1500);
 }
@@ -422,30 +427,14 @@ function showNextTickerMessage() {
  * Start ticker expand/retract cycle
  */
 function startTickerCycle() {
-    // Expand every 3.5 minutes (210000ms), show for 40 seconds (40000ms)
-    tickerExpandInterval = setInterval(() => {
-        expandTicker();
+    clearTimeout(tickerExpandTimeout);
+    clearTimeout(tickerMessageTimeout);
+    clearTimeout(tickerTransitionTimeout);
+    clearTimeout(tickerContentTimeout);
 
-        // Retract after 40 seconds
-        setTimeout(() => {
-            retractTicker();
-        }, 40000);
-    }, 210000);
-
-    // Cycle through messages while ticker is expanded (change every 9.5 seconds for slower transitions)
-    tickerMessageInterval = setInterval(() => {
-        if (isTickerExpanded) {
-            showNextTickerMessage();
-        }
-    }, 9500);
-
-    // Show first expansion immediately
+    // A single chained cycle prevents a message transition from overlapping
+    // ticker expansion or retraction.
     expandTicker();
-
-    // Retract first expansion after 40 seconds
-    setTimeout(() => {
-        retractTicker();
-    }, 40000);
 }
 
 /**
@@ -483,4 +472,3 @@ if (document.readyState === 'loading') {
 } else {
     init();
 }
-
