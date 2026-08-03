@@ -69,8 +69,10 @@
       "date": "2026-08-01",
       "time": "19:30",
       "location": "Online",
-      "description": "Variety Hour set (Electric Heater Room).",
-      "type": "event"
+      "description": "Variety Time set on House-Mixes (Electric Heater Room).",
+      "type": "event",
+      "audio_set_name": "EHR - Variety Time",
+      "audio_set_key": "/flukiel/ehr-variety-time"
     }
   ]
 }
