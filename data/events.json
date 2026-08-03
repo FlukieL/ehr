@@ -72,7 +72,9 @@
       "description": "Variety Time set on House-Mixes (Electric Heater Room).",
       "type": "event",
       "audio_set_name": "EHR - Variety Time",
-      "audio_set_key": "/flukiel/ehr-variety-time"
+      "audio_set_key": "/flukiel/ehr-variety-time",
+      "video_set_name": "EHR - Variety Hour",
+      "video_set_key": "230027318_456239033"
     }
   ]
 }
